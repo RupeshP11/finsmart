@@ -1,5 +1,6 @@
 import json
 import http.cookiejar
+import time
 import urllib.request
 from urllib.parse import quote
 import yfinance as yf
@@ -9,6 +10,8 @@ router = APIRouter(prefix="/markets", tags=["Markets"])
 
 # NSE India symbols for yfinance (with .NS suffix)
 DEFAULT_SYMBOLS = [
+    "^NSEI",
+    "^BSESN",
     "RELIANCE.NS",
     "TCS.NS",
     "INFY.NS",
@@ -26,6 +29,17 @@ DEFAULT_SYMBOLS = [
     "WIPRO.NS",
     "ASIANPAINT.NS",
 ]
+
+SYMBOL_LABELS = {
+    "^NSEI": "NIFTY 50",
+    "^BSESN": "SENSEX",
+}
+
+# Simple in-memory cache to avoid rate limits (60s)
+_CACHE = {
+    "timestamp": 0,
+    "items": [],
+}
 
 FALLBACK_ITEMS = [
     {"symbol": "NIFTY 50", "price": 22124.3, "change": 62.4, "changePercent": 0.28},
@@ -66,6 +80,9 @@ def fetch_nse_quotes(symbols):
         return items
 
     for symbol in symbols:
+        # NSE quote API only supports equity symbols without suffix
+        if symbol.startswith("^"):
+            continue
         nse_symbol = symbol.replace(".NS", "")
         url = f"https://www.nseindia.com/api/quote-equity?symbol={quote(nse_symbol)}"
         try:
@@ -90,60 +107,56 @@ def fetch_nse_quotes(symbols):
     return items
 
 
+def _display_symbol(symbol):
+    if symbol in SYMBOL_LABELS:
+        return SYMBOL_LABELS[symbol]
+    return symbol.replace(".NS", "")
+
+
 def fetch_yfinance_quotes(symbols):
     """Fetch quotes from yfinance (free, no API key needed)."""
     items = []
-    
-    try:
-        # Fetch data for all symbols at once
-        data = yf.download(symbols, period="1d", progress=False)
-        
-        for symbol in symbols:
-            try:
-                if len(symbols) == 1:
-                    # Single symbol case
-                    current_price = data["Close"].iloc[-1]
-                    prev_price = data["Close"].iloc[-2] if len(data) > 1 else current_price
-                else:
-                    # Multiple symbols case
-                    current_price = data["Close"][symbol].iloc[-1]
-                    prev_price = data["Close"][symbol].iloc[-2] if len(data) > 1 else current_price
-                
+    for symbol in symbols:
+        try:
+            stock = yf.Ticker(symbol)
+
+            # Try fast_info first (fastest/most reliable for last price)
+            info = getattr(stock, "fast_info", None)
+            if info:
+                last_price = info.get("last_price")
+                prev_close = info.get("previous_close")
+                if last_price is not None:
+                    prev = prev_close if prev_close else last_price
+                    change = last_price - prev
+                    change_percent = (change / prev * 100) if prev > 0 else 0
+                    items.append(
+                        {
+                            "symbol": _display_symbol(symbol),
+                            "price": float(round(last_price, 2)),
+                            "change": float(round(change, 2)),
+                            "changePercent": float(round(change_percent, 2)),
+                        }
+                    )
+                    continue
+
+            # Fallback to short-interval history
+            data = stock.history(period="1d", interval="1m")
+            if len(data) >= 1:
+                current_price = data["Close"].dropna().iloc[-1]
+                prev_price = data["Close"].dropna().iloc[0]
                 change = current_price - prev_price
                 change_percent = (change / prev_price * 100) if prev_price > 0 else 0
-                
-                items.append({
-                    "symbol": symbol.replace(".NS", ""),
-                    "price": float(round(current_price, 2)),
-                    "change": float(round(change, 2)),
-                    "changePercent": float(round(change_percent, 2)),
-                })
-            except Exception:
-                # Skip if symbol fetch fails
-                continue
-    except Exception:
-        # If batch fetch fails, try individual symbols
-        for symbol in symbols:
-            try:
-                stock = yf.Ticker(symbol)
-                data = stock.history(period="2d")
-                
-                if len(data) >= 1:
-                    current_price = data["Close"].iloc[-1]
-                    prev_price = data["Close"].iloc[-2] if len(data) > 1 else current_price
-                    
-                    change = current_price - prev_price
-                    change_percent = (change / prev_price * 100) if prev_price > 0 else 0
-                    
-                    items.append({
-                        "symbol": symbol.replace(".NS", ""),
+                items.append(
+                    {
+                        "symbol": _display_symbol(symbol),
                         "price": float(round(current_price, 2)),
                         "change": float(round(change, 2)),
                         "changePercent": float(round(change_percent, 2)),
-                    })
-            except Exception:
-                continue
-    
+                    }
+                )
+        except Exception:
+            continue
+
     return items
 
 
@@ -151,11 +164,17 @@ def fetch_yfinance_quotes(symbols):
 def get_ticker():
     """Get live stock quotes using free sources only."""
     try:
+        now = time.time()
+        if _CACHE["items"] and now - _CACHE["timestamp"] < 60:
+            return {"items": _CACHE["items"]}
+
         quotes = fetch_nse_quotes(DEFAULT_SYMBOLS)
         if not quotes:
             quotes = fetch_yfinance_quotes(DEFAULT_SYMBOLS)
         
         if quotes:
+            _CACHE["items"] = quotes
+            _CACHE["timestamp"] = now
             return {"items": quotes}
         else:
             return {"items": FALLBACK_ITEMS}
