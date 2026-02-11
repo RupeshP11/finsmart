@@ -35,18 +35,27 @@ function TickerTape() {
   useEffect(() => {
     let isMounted = true;
 
-    fetch(`${API_BASE_URL}/markets/ticker`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!isMounted) return;
-        if (Array.isArray(data.items) && data.items.length > 0) {
-          setItems(data.items);
-        }
-      })
-      .catch(() => {});
+    const fetchTicker = () => {
+      fetch(`${API_BASE_URL}/markets/ticker`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!isMounted) return;
+          if (Array.isArray(data.items) && data.items.length > 0) {
+            setItems(data.items);
+          }
+        })
+        .catch(() => {});
+    };
+
+    // Fetch immediately
+    fetchTicker();
+
+    // Refresh every 60 seconds for live prices
+    const interval = setInterval(fetchTicker, 60000);
 
     return () => {
       isMounted = false;
+      clearInterval(interval);
     };
   }, []);
 

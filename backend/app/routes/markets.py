@@ -35,7 +35,7 @@ SYMBOL_LABELS = {
     "^BSESN": "SENSEX",
 }
 
-# Simple in-memory cache to avoid rate limits (60s)
+# Simple in-memory cache to avoid rate limits (30s for fresher data)
 _CACHE = {
     "timestamp": 0,
     "items": [],
@@ -114,38 +114,30 @@ def _display_symbol(symbol):
 
 
 def fetch_yfinance_quotes(symbols):
-    """Fetch quotes from yfinance (free, no API key needed)."""
+    """Fetch quotes from yfinance (free, no API key needed) - LIVE prices."""
     items = []
     for symbol in symbols:
         try:
             stock = yf.Ticker(symbol)
 
-            # Try fast_info first (fastest/most reliable for last price)
-            info = getattr(stock, "fast_info", None)
-            if info:
-                last_price = info.get("last_price")
-                prev_close = info.get("previous_close")
-                if last_price is not None:
-                    prev = prev_close if prev_close else last_price
-                    change = last_price - prev
-                    change_percent = (change / prev * 100) if prev > 0 else 0
-                    items.append(
-                        {
-                            "symbol": _display_symbol(symbol),
-                            "price": float(round(last_price, 2)),
-                            "change": float(round(change, 2)),
-                            "changePercent": float(round(change_percent, 2)),
-                        }
-                    )
-                    continue
-
-            # Fallback to short-interval history
+            # Use 1-minute interval data for most up-to-date live price
             data = stock.history(period="1d", interval="1m")
-            if len(data) >= 1:
+            
+            if len(data) >= 2:
+                # Get the very latest price available (most recent minute)
                 current_price = data["Close"].dropna().iloc[-1]
-                prev_price = data["Close"].dropna().iloc[0]
-                change = current_price - prev_price
-                change_percent = (change / prev_price * 100) if prev_price > 0 else 0
+                
+                # Compare to previous close from info (day's opening reference)
+                info = stock.info if hasattr(stock, 'info') else {}
+                prev_close = info.get("previousClose") or info.get("regularMarketPreviousClose")
+                
+                # If no previous close, use first price of today
+                if not prev_close or prev_close == 0:
+                    prev_close = data["Open"].dropna().iloc[0]
+                
+                change = current_price - prev_close
+                change_percent = (change / prev_close * 100) if prev_close > 0 else 0
+                
                 items.append(
                     {
                         "symbol": _display_symbol(symbol),
@@ -154,7 +146,23 @@ def fetch_yfinance_quotes(symbols):
                         "changePercent": float(round(change_percent, 2)),
                     }
                 )
-        except Exception:
+            elif len(data) >= 1:
+                # Fallback: at least one data point
+                current_price = data["Close"].dropna().iloc[-1]
+                open_price = data["Open"].dropna().iloc[0]
+                change = current_price - open_price
+                change_percent = (change / open_price * 100) if open_price > 0 else 0
+                
+                items.append(
+                    {
+                        "symbol": _display_symbol(symbol),
+                        "price": float(round(current_price, 2)),
+                        "change": float(round(change, 2)),
+                        "changePercent": float(round(change_percent, 2)),
+                    }
+                )
+        except Exception as e:
+            # Skip symbols that fail
             continue
 
     return items
@@ -162,10 +170,11 @@ def fetch_yfinance_quotes(symbols):
 
 @router.get("/ticker")
 def get_ticker():
-    """Get live stock quotes using free sources only."""
+    """Get live stock quotes using free sources only - refreshes every 30s."""
     try:
         now = time.time()
-        if _CACHE["items"] and now - _CACHE["timestamp"] < 60:
+        # Cache for 30 seconds (shorter for fresher prices)
+        if _CACHE["items"] and now - _CACHE["timestamp"] < 30:
             return {"items": _CACHE["items"]}
 
         quotes = fetch_nse_quotes(DEFAULT_SYMBOLS)
