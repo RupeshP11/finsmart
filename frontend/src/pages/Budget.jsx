@@ -24,11 +24,17 @@ function Budget({ selectedMonth }) {
   const [loading, setLoading] = useState(false);
 
   async function fetchCategories() {
-    const res = await fetch(`${API_BASE_URL}/categories`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    return data.filter((c) => c.type === "expense");
+    try {
+      const res = await fetch(`${API_BASE_URL}/categories`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      console.log("Fetched categories:", data);
+      return Array.isArray(data) ? data.filter((c) => c.type === "expense") : [];
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      return [];
+    }
   }
 
   async function fetchBudgetUsage(categoryId, month) {
@@ -41,8 +47,10 @@ function Budget({ selectedMonth }) {
 
   async function loadBudgetData(month) {
     setLoading(true);
+    console.log("Loading budget data for month:", month);
 
     const cats = await fetchCategories();
+    console.log("Categories loaded:", cats);
     setCategories(cats);
 
     const temp = {};
@@ -50,6 +58,7 @@ function Budget({ selectedMonth }) {
 
     for (const cat of cats) {
       const usage = await fetchBudgetUsage(cat.id, month);
+      console.log(`Usage for ${cat.name}:`, usage);
       temp[cat.id] = usage;
       if (usage?.limit) limits[cat.id] = usage.limit;
     }
@@ -72,28 +81,36 @@ function Budget({ selectedMonth }) {
       return;
     }
 
-    await fetch(`${API_BASE_URL}/budget/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ category_id: categoryId, monthly_limit: limit }),
-    });
-
-    // Trigger alert check for this category
-    await fetch(
-      `${API_BASE_URL}/budget/check-alerts/${categoryId}?month=${selectedMonth}`,
-      {
+    try {
+      const res = await fetch(`${API_BASE_URL}/budget/`, {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
+        body: JSON.stringify({ category_id: categoryId, monthly_limit: limit }),
+      });
+      console.log("Budget saved:", await res.json());
 
-    setEditingId(null);
-    loadBudgetData(selectedMonth);
+      // Trigger alert check for this category
+      const alertRes = await fetch(
+        `${API_BASE_URL}/budget/check-alerts/${categoryId}?month=${selectedMonth}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Alert check result:", await alertRes.json());
+
+      setEditingId(null);
+      // Refresh only the data for this month
+      await loadBudgetData(selectedMonth);
+    } catch (error) {
+      console.error("Error saving budget:", error);
+      alert("Error saving budget. Please try again.");
+    }
   }
 
   const totalBudget = Object.values(inputLimits).reduce(
@@ -239,12 +256,16 @@ function Budget({ selectedMonth }) {
                             type="number"
                             placeholder="Monthly limit"
                             value={inputLimits[cat.id] || ""}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              const newVal = e.target.value;
                               setInputLimits({
                                 ...inputLimits,
-                                [cat.id]: e.target.value,
-                              })
-                            }
+                                [cat.id]: newVal,
+                              });
+                              // Update summary immediately
+                              const newBudgetData = {...inputLimits};
+                              newBudgetData[cat.id] = newVal;
+                            }}
                             className="form-input budget-input"
                           />
                           <div className="button-group">
