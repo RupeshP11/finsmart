@@ -23,7 +23,7 @@ function Insights({ selectedMonth }) {
       setError(null);
 
       const response = await fetch(
-        `${API_BASE}/insights/enhanced?month=${selectedMonth}`,
+        `${API_BASE_URL}/insights/enhanced?month=${selectedMonth}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
