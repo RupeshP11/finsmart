@@ -28,7 +28,7 @@ def create_transaction(
 ):
     category = db.query(Category).filter(
         Category.id == transaction.category_id,
-        Category.user_id == current_user.id
+        (Category.user_id == current_user.id) | (Category.user_id == None)
     ).first()
 
     if not category:
