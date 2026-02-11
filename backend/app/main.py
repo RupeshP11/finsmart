@@ -32,12 +32,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Create tables if they don't exist (preserves existing data)
-Base.metadata.create_all(bind=engine)
-
-# Seed default categories on startup (only if empty)
-from app.seed_categories import seed_categories
-seed_categories()
+# Create tables on first request instead of startup (handles DB connection issues gracefully)
+@app.on_event("startup")
+def startup_event():
+    try:
+        Base.metadata.create_all(bind=engine)
+        # Seed default categories on startup (only if empty)
+        from app.seed_categories import seed_categories
+        seed_categories()
+    except Exception as e:
+        print(f"Warning: Could not initialize database on startup: {e}")
+        print("Tables will be created on first request...")
 
 app.include_router(auth.router)
 app.include_router(users.router)
