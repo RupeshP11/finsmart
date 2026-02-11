@@ -120,49 +120,81 @@ def fetch_yfinance_quotes(symbols):
         try:
             stock = yf.Ticker(symbol)
 
-            # Use 1-minute interval data for most up-to-date live price
-            data = stock.history(period="1d", interval="1m")
-            
-            if len(data) >= 2:
-                # Get the very latest price available (most recent minute)
-                current_price = data["Close"].dropna().iloc[-1]
+            # Try to get today's live data with 1-minute interval
+            try:
+                data = stock.history(period="1d", interval="1m")
+                if len(data) >= 2:
+                    # Get the very latest price available (most recent minute)
+                    current_price = data["Close"].dropna().iloc[-1]
+                    
+                    # Compare to previous close from info (day's opening reference)
+                    info = stock.info if hasattr(stock, 'info') else {}
+                    prev_close = info.get("previousClose") or info.get("regularMarketPreviousClose")
+                    
+                    # If no previous close, use first price of today
+                    if not prev_close or prev_close == 0:
+                        prev_close = data["Open"].dropna().iloc[0]
+                    
+                    change = current_price - prev_close
+                    change_percent = (change / prev_close * 100) if prev_close > 0 else 0
+                    
+                    items.append(
+                        {
+                            "symbol": _display_symbol(symbol),
+                            "price": float(round(current_price, 2)),
+                            "change": float(round(change, 2)),
+                            "changePercent": float(round(change_percent, 2)),
+                        }
+                    )
+                    continue
+            except Exception:
+                pass
+
+            # Fallback: Try 5-day data with 1-hour interval (works even when market closed)
+            try:
+                data = stock.history(period="5d", interval="1h")
+                if len(data) >= 2:
+                    current_price = data["Close"].dropna().iloc[-1]
+                    prev_close = data["Close"].dropna().iloc[-2]
+                    
+                    change = current_price - prev_close
+                    change_percent = (change / prev_close * 100) if prev_close > 0 else 0
+                    
+                    items.append(
+                        {
+                            "symbol": _display_symbol(symbol),
+                            "price": float(round(current_price, 2)),
+                            "change": float(round(change, 2)),
+                            "changePercent": float(round(change_percent, 2)),
+                        }
+                    )
+                    continue
+            except Exception:
+                pass
+
+            # Last resort: Try info dict with basic data
+            try:
+                info = stock.info
+                current = info.get("regularMarketPrice") or info.get("currentPrice")
+                prev = info.get("regularMarketPreviousClose") or info.get("previousClose")
                 
-                # Compare to previous close from info (day's opening reference)
-                info = stock.info if hasattr(stock, 'info') else {}
-                prev_close = info.get("previousClose") or info.get("regularMarketPreviousClose")
-                
-                # If no previous close, use first price of today
-                if not prev_close or prev_close == 0:
-                    prev_close = data["Open"].dropna().iloc[0]
-                
-                change = current_price - prev_close
-                change_percent = (change / prev_close * 100) if prev_close > 0 else 0
-                
-                items.append(
-                    {
-                        "symbol": _display_symbol(symbol),
-                        "price": float(round(current_price, 2)),
-                        "change": float(round(change, 2)),
-                        "changePercent": float(round(change_percent, 2)),
-                    }
-                )
-            elif len(data) >= 1:
-                # Fallback: at least one data point
-                current_price = data["Close"].dropna().iloc[-1]
-                open_price = data["Open"].dropna().iloc[0]
-                change = current_price - open_price
-                change_percent = (change / open_price * 100) if open_price > 0 else 0
-                
-                items.append(
-                    {
-                        "symbol": _display_symbol(symbol),
-                        "price": float(round(current_price, 2)),
-                        "change": float(round(change, 2)),
-                        "changePercent": float(round(change_percent, 2)),
-                    }
-                )
+                if current and prev:
+                    change = current - prev
+                    change_percent = (change / prev * 100) if prev > 0 else 0
+                    
+                    items.append(
+                        {
+                            "symbol": _display_symbol(symbol),
+                            "price": float(round(current, 2)),
+                            "change": float(round(change, 2)),
+                            "changePercent": float(round(change_percent, 2)),
+                        }
+                    )
+            except Exception:
+                pass
+
         except Exception as e:
-            # Skip symbols that fail
+            # Skip symbols that fail completely
             continue
 
     return items
