@@ -1,0 +1,68 @@
+/* Month Selector Styling - Professional Minimal */
+
+.month-selector-wrapper {
+  background: var(--color-bg-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-md) var(--space-lg);
+  position: sticky;
+  top: 56px;
+  z-index: 99;
+}
+
+.month-selector-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 0 var(--space-lg);
+}
+
+.month-label {
+  font-size: var(--fs-body-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.month-input {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-body-sm);
+  font-family: var(--font-app);
+  color: var(--color-text-primary);
+  background: var(--color-bg-page);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.month-input:hover {
+  border-color: var(--color-primary);
+  background: var(--color-bg-subtle);
+}
+
+.month-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .month-selector-wrapper {
+    padding: var(--space-sm) var(--space-md);
+    top: 60px;
+  }
+
+  .month-selector-container {
+    flex-wrap: wrap;
+    padding: 0 var(--space-md);
+  }
+
+  .month-input {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 14px;
+  }
+}

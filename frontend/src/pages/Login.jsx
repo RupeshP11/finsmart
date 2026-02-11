@@ -1,0 +1,118 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "../styles/login.css";
+
+function Login({ onLogin }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
+  const navigate = useNavigate();
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    setMessage("");
+    setMessageType("");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Login response:", data);
+
+      if (response.ok) {
+        localStorage.setItem("token", data.access_token);
+
+        // 🔑 tell App.jsx auth state changed
+        onLogin();
+
+        // 🔀 redirect immediately
+        navigate("/dashboard");
+      } else {
+        setMessage(data.detail || "Login failed. Please try again.");
+        setMessageType("error");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setMessage("Something went wrong. Please try again.");
+      setMessageType("error");
+    }
+  }
+
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-title">
+          Welcome back to <span>FinSmart</span>
+        </div>
+        <div className="auth-subtitle">Log in to your account</div>
+
+        {message && (
+          <div className={`auth-message ${messageType}`}>{message}</div>
+        )}
+
+        <form className="auth-form" onSubmit={handleLogin}>
+          <div className="input-group">
+            <label htmlFor="email" className="label">
+              Email address
+            </label>
+            <input
+              autoComplete="off"
+              name="Email"
+              id="email"
+              className="input"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="password" className="label">
+              Password
+            </label>
+            <input
+              autoComplete="off"
+              name="Password"
+              id="password"
+              className="input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <a className="auth-link" href="#">
+              Forgot your password?
+            </a>
+          </div>
+
+          <button type="submit" className="auth-submit">
+            Submit
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          Don&apos;t have an account yet?{" "}
+          <Link className="auth-link" to="/signup">
+            Sign up for free!
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Login;

@@ -1,0 +1,131 @@
+/* Global App Styles - All Pages */
+
+@media (max-width: 1200px) {
+  .page-container {
+    max-width: 100%;
+    padding: var(--space-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  /* Optimize for tablet */
+  body {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  h3 {
+    font-size: 16px;
+  }
+
+  .page-container {
+    padding: var(--space-md);
+  }
+
+  .card {
+    border-radius: var(--radius-md);
+  }
+
+  /* Better touch targets on mobile */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+
+  .btn {
+    padding: var(--space-sm) var(--space-md);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container {
+    padding: var(--space-sm);
+  }
+
+  .page-content {
+    gap: var(--space-lg);
+  }
+
+  /* Stack all grids to single column */
+  .grid-2,
+  .grid-3,
+  .card-grid,
+  .budget-grid,
+  .stat-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Full width buttons */
+  .btn-wide,
+  .btn {
+    width: 100%;
+  }
+
+  /* Better input experience */
+  input:not([type="radio"]):not([type="checkbox"]),
+  select,
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Improve spacing for mobile */
+  .form-group {
+    margin-bottom: var(--space-lg);
+  }
+
+  .alert-item {
+    padding: var(--space-sm) var(--space-md);
+  }
+}
+
+/* High DPI Screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .page-container {
+    padding: var(--space-sm);
+  }
+
+  .page-content {
+    gap: var(--space-md);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .btn,
+  button,
+  [role="button"] {
+    display: none;
+  }
+
+  .page-container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+}

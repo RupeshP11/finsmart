@@ -1,0 +1,174 @@
+/* Advanced Analytics Page Styles */
+
+.analytics-header {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.analytics-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.analytics-header .subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Analytics Cards */
+.analytics-card {
+  margin-bottom: 28px;
+}
+
+.card-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.card-hint {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Comparison Summary */
+.comparison-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-item {
+  background: rgba(239, 245, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 16px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.summary-item:hover {
+  background: rgba(59, 130, 246, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.summary-item .label {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.summary-item .amount {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+.summary-item.trend-up .amount {
+  color: #dc2626;
+}
+
+.summary-item.trend-down .amount {
+  color: #10b981;
+}
+
+/* Budget Summary */
+.budget-summary {
+  margin-top: 12px;
+}
+
+.category-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comparison-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: rgba(249, 250, 251, 0.5);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.comparison-row:hover {
+  background: rgba(249, 250, 251, 1);
+}
+
+/* Subscriptions List */
+.subscriptions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.subscription-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: rgba(249, 250, 251, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.subscription-item:hover {
+  background: rgba(249, 250, 251, 1);
+  border-color: #d1d5db;
+  transform: translateX(4px);
+}
+
+/* Card Grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 1200px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-header h1 {
+    font-size: 24px;
+  }
+
+  .summary-item .amount {
+    font-size: 16px;
+  }
+
+  .heatmap-container {
+    overflow-x: auto;
+  }
+}

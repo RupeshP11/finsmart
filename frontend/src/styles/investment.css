@@ -1,0 +1,456 @@
+/* Investment Advisor Page Styles */
+
+.investment-container {
+  min-height: 100vh;
+  padding: var(--padding-page);
+  background: var(--color-bg-page);
+}
+
+.investment-content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+/* Page Header */
+.page-title-section {
+  margin-bottom: 48px;
+}
+
+.page-title-section h1 {
+  font-size: var(--fs-page-title);
+  font-weight: var(--fw-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  font-size: var(--fs-body);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Available Balance Card */
+.available-balance-card {
+  background: linear-gradient(135deg, #5865f2 0%, #7c3aed 100%);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  margin-bottom: 32px;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+}
+
+.balance-label {
+  font-size: var(--fs-body);
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0 0 8px 0;
+  font-weight: var(--fw-medium);
+}
+
+.balance-amount {
+  font-size: 48px;
+  font-weight: var(--fw-bold);
+  margin: 0 0 12px 0;
+  letter-spacing: -1px;
+  color: #ffffff;
+}
+
+.balance-note {
+  font-size: var(--fs-body-sm);
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  line-height: var(--lh-normal);
+}
+
+/* Risk Profile Selector */
+.risk-selector-section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: var(--fs-section-title);
+  font-weight: var(--fw-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 20px 0;
+}
+
+.risk-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.risk-card {
+  background: var(--color-bg-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.risk-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.risk-card.selected {
+  border-color: var(--color-primary);
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.05) 0%, rgba(102, 126, 234, 0.05) 100%);
+  box-shadow: var(--shadow-sm);
+}
+
+.risk-title {
+  font-size: var(--fs-subtitle);
+  font-weight: var(--fw-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 4px 0;
+}
+
+.risk-subtitle {
+  font-size: var(--fs-body-sm);
+  color: var(--color-text-secondary);
+  margin: 0 0 12px 0;
+}
+
+.risk-preview {
+  font-size: var(--fs-helper);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.get-advice-btn {
+  width: 100%;
+  padding: 16px 32px;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  color: #ffffff;
+  background: #5865f2;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 24px;
+}
+
+.get-advice-btn:hover:not(:disabled) {
+  background: #4752c4;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+}
+
+.get-advice-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #5865f2;
+}
+
+/* Loading & Error States */
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 40px;
+  font-size: var(--fs-body);
+  color: var(--color-text-secondary);
+}
+
+.error-state {
+  color: var(--color-danger);
+  background: #FEF2F2;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-danger);
+}
+
+/* Results Section */
+.results-section {
+  margin-top: 48px;
+}
+
+.recommendation-message {
+  background: var(--color-bg-surface);
+  border-left: 4px solid var(--color-primary);
+  padding: 20px 24px;
+  border-radius: var(--radius-md);
+  margin-bottom: 32px;
+}
+
+.recommendation-message p {
+  font-size: var(--fs-body);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: var(--lh-relaxed);
+}
+
+/* Allocation Display */
+.allocation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.allocation-card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: var(--transition-hover);
+}
+
+.allocation-card:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+.allocation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.allocation-category {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.category-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.category-icon.equity {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.category-icon.debt {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.category-icon.gold {
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.category-icon.emergency {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.category-name {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.allocation-percentage {
+  font-size: var(--fs-number-md);
+  font-weight: var(--fw-bold);
+  color: var(--color-primary);
+}
+
+.allocation-amount {
+  font-size: var(--fs-section-title);
+  font-weight: var(--fw-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 12px 0;
+}
+
+.allocation-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--color-bg-subtle);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.allocation-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+.allocation-bar-fill.equity {
+  background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
+}
+
+.allocation-bar-fill.debt {
+  background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
+}
+
+.allocation-bar-fill.gold {
+  background: linear-gradient(90deg, #fbbf24 0%, #fcd34d 100%);
+}
+
+.allocation-bar-fill.emergency {
+  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+}
+
+/* Investment Suggestions */
+.investment-suggestions {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.suggestions-title {
+  font-size: var(--fs-subtitle);
+  font-weight: var(--fw-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 16px 0;
+}
+
+.suggestion-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.suggestion-list li {
+  font-size: var(--fs-body-sm);
+  color: var(--color-text-secondary);
+  padding-left: 28px;
+  position: relative;
+  line-height: var(--lh-normal);
+}
+
+.suggestion-list li::before {
+  content: '→';
+  position: absolute;
+  left: 8px;
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+/* Info Section */
+.investment-info-section {
+  background: var(--color-bg-surface);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  margin: 56px calc(-1 * var(--padding-page));
+  padding: 64px var(--padding-page);
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 64px;
+  align-items: center;
+}
+
+.info-content {
+  display: contents;
+}
+
+.info-text h3 {
+  font-size: var(--fs-section-title);
+  font-weight: var(--fw-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 16px 0;
+  letter-spacing: -0.3px;
+}
+
+.info-text p {
+  font-size: var(--fs-body);
+  color: var(--color-text-secondary);
+  line-height: var(--lh-relaxed);
+  margin: 0 0 24px 0;
+}
+
+.info-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-list li {
+  font-size: var(--fs-body-sm);
+  color: var(--color-text-secondary);
+  padding-left: 28px;
+  position: relative;
+  line-height: var(--lh-normal);
+}
+
+.info-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--color-success);
+  font-weight: bold;
+}
+
+.info-image {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.info-placeholder {
+  width: 400px;
+  height: 400px;
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.info-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .investment-container {
+    padding: 24px;
+  }
+
+  .page-title-section h1 {
+    font-size: var(--fs-section-title);
+  }
+
+  .balance-amount {
+    font-size: 36px;
+  }
+
+  .risk-options {
+    grid-template-columns: 1fr;
+  }
+
+  .allocation-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .investment-info-section {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 32px 24px;
+    margin: 56px 0;
+    border-top: none;
+    border-bottom: none;
+    border: 1px solid var(--color-border);
+  }
+
+  .info-text h3 {
+    font-size: var(--fs-subtitle);
+  }
+
+  .info-placeholder {
+    width: 100%;
+    height: 300px;
+  }
+}
