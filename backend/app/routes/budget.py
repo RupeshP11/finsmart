@@ -29,9 +29,10 @@ def set_budget(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # Allow both user-owned AND global categories
     category = db.query(Category).filter(
         Category.id == budget.category_id,
-        Category.user_id == current_user.id
+        (Category.user_id == current_user.id) | (Category.user_id == None)
     ).first()
 
     if not category:
@@ -123,7 +124,7 @@ def check_budget_alerts(
 
     category = db.query(Category).filter(
         Category.id == category_id,
-        Category.user_id == current_user.id
+        (Category.user_id == current_user.id) | (Category.user_id == None)
     ).first()
 
     if not category:

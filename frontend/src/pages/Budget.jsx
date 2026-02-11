@@ -81,6 +81,17 @@ function Budget({ selectedMonth }) {
       body: JSON.stringify({ category_id: categoryId, monthly_limit: limit }),
     });
 
+    // Trigger alert check for this category
+    await fetch(
+      `${API_BASE_URL}/budget/check-alerts/${categoryId}?month=${selectedMonth}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
     setEditingId(null);
     loadBudgetData(selectedMonth);
   }
