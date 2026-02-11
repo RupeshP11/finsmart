@@ -1,12 +1,23 @@
 import pickle
 import re
 
-# Load ML model & vectorizer
-with open("app/ml/model.pkl", "rb") as f:
-    model = pickle.load(f)
+# Global variables for lazy loading
+model = None
+vectorizer = None
 
-with open("app/ml/vectorizer.pkl", "rb") as f:
-    vectorizer = pickle.load(f)
+def load_models():
+    """Lazy load ML models on first use"""
+    global model, vectorizer
+    if model is None or vectorizer is None:
+        try:
+            with open("app/ml/model.pkl", "rb") as f:
+                model = pickle.load(f)
+            with open("app/ml/vectorizer.pkl", "rb") as f:
+                vectorizer = pickle.load(f)
+        except Exception as e:
+            print(f"Warning: Could not load ML models: {e}")
+            model = None
+            vectorizer = None
 
 # Rule-based keyword mapping (primary intelligence)
 KEYWORD_MAP = {
@@ -93,6 +104,9 @@ KEYWORD_MAP = {
 }
 
 def predict_category(description: str):
+    # Load models on first use
+    load_models()
+    
     text = description.lower()
 
     # ✅ tokenize into words (removes punctuation safely)
@@ -108,7 +122,15 @@ def predict_category(description: str):
                     "confidence": 1.0
                 }
 
-    # 2️⃣ ML fallback
+    # 2️⃣ ML fallback (only if model loaded successfully)
+    if model is None or vectorizer is None:
+        # Return default category if ML model not available
+        return {
+            "category": "Other",
+            "source": "default",
+            "confidence": 0.0
+        }
+    
     X = vectorizer.transform([description])
     prediction = model.predict(X)[0]
 
