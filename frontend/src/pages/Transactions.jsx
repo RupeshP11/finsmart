@@ -11,29 +11,42 @@ function Transactions({ selectedMonth }) {
   const [suggestedCategory, setSuggestedCategory] = useState(null);
   const [loadingSuggestion, setLoadingSuggestion] = useState(false);
   const [transactions, setTransactions] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const token = localStorage.getItem("token");
 
   // Fetch categories
   async function fetchCategories() {
-    const res = await fetch(`${API_BASE_URL}/categories`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setCategories(await res.json());
+    try {
+      const res = await fetch(`${API_BASE_URL}/categories`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
   }
 
   // Fetch transactions
   async function fetchTransactions() {
-    const res = await fetch(`${API_BASE_URL}/transactions`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setTransactions(await res.json());
+    try {
+      const res = await fetch(`${API_BASE_URL}/transactions`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setTransactions(data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
   }
 
   useEffect(() => {
-    fetchCategories();
-    fetchTransactions();
-  }, []);
+    if (token) {
+      fetchCategories();
+      fetchTransactions();
+    }
+  }, [token]);
 
   useEffect(() => {
     if (token) {
@@ -80,62 +93,93 @@ function Transactions({ selectedMonth }) {
   async function addTransaction(e) {
     e.preventDefault();
 
-    const res = await fetch(`${API_BASE_URL}/transactions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        amount: Number(amount),
-        description,
-        category_id: Number(categoryId),
-        date: `${selectedMonth}-01`,
-      }),
-    });
+    if (!amount || !categoryId) {
+      alert("Please fill all required fields");
+      return;
+    }
 
-    // re-check alerts for this category
-    await fetch(
-      `${API_BASE_URL}/budget/check-alerts/${categoryId}?month=${selectedMonth}`,
-      {
+    setIsSubmitting(true);
+
+    try {
+      // 1. Add transaction
+      const addRes = await fetch(`${API_BASE_URL}/transactions`, {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          amount: Number(amount),
+          description,
+          category_id: Number(categoryId),
+          date: `${selectedMonth}-01`,
+        }),
+      });
+
+      if (!addRes.ok) {
+        throw new Error("Failed to add transaction");
       }
-    );
 
-    setAmount("");
-    setDescription("");
-    setCategoryId("");
-    setSuggestedCategory(null);
+      // 2. Check budget alerts for this category
+      await fetch(
+        `${API_BASE_URL}/budget/check-alerts/${categoryId}?month=${selectedMonth}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      ).catch(err => console.error("Alert check error:", err));
 
-    fetchTransactions();
+      // 3. Refresh transaction list
+      await fetchTransactions();
+
+      // Reset form
+      setAmount("");
+      setDescription("");
+      setCategoryId("");
+      setSuggestedCategory(null);
+
+      alert("Transaction added successfully!");
+    } catch (error) {
+      console.error("Error adding transaction:", error);
+      alert("Error adding transaction: " + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   // delete transaction and re-check alerts
   async function deleteTransaction(id, categoryId) {
     if (!window.confirm("Delete this transaction?")) return;
 
-    await fetch(`${API_BASE_URL}/transactions/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    // Re-check alerts for this category & month
-    await fetch(
-      `${API_BASE_URL}/budget/check-alerts/${categoryId}?month=${selectedMonth}`,
-      {
-        method: "POST",
+    try {
+      // Delete transaction
+      await fetch(`${API_BASE_URL}/transactions/${id}`, {
+        method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
+      });
 
-    fetchTransactions();
+      // Re-check alerts for this category & month
+      await fetch(
+        `${API_BASE_URL}/budget/check-alerts/${categoryId}?month=${selectedMonth}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      ).catch(err => console.error("Alert check error:", err));
+
+      // Refresh list
+      await fetchTransactions();
+      alert("Transaction deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      alert("Error deleting transaction");
+    }
   }
 
   // Filter transactions by selected month
@@ -324,8 +368,12 @@ function Transactions({ selectedMonth }) {
             </div>
 
             {/* Submit Button */}
-            <button type="submit" className="btn btn-primary btn-wide">
-              Add Transaction
+            <button 
+              type="submit" 
+              className="btn btn-primary btn-wide"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Adding..." : "Add Transaction"}
             </button>
           </form>
         </div>
