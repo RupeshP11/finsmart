@@ -48,8 +48,9 @@ def get_categories(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # Get both user's custom categories AND global categories
     categories = db.query(Category).filter(
-        Category.user_id == current_user.id
+        (Category.user_id == current_user.id) | (Category.user_id == None)
     ).all()
 
     return categories
