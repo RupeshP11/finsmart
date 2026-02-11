@@ -6,6 +6,7 @@ function Transactions({ selectedMonth }) {
   const [type, setType] = useState("expense");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [suggestedCategory, setSuggestedCategory] = useState(null);
@@ -38,6 +39,8 @@ function Transactions({ selectedMonth }) {
   useEffect(() => {
     if (token) {
       fetchTransactions();
+      // Set date to first day of selected month
+      setDate(`${selectedMonth}-01`);
     }
   }, [token, selectedMonth]);
 
@@ -90,7 +93,7 @@ function Transactions({ selectedMonth }) {
         amount: Number(amount),
         description,
         category_id: Number(categoryId),
-        date: new Date().toISOString().split("T")[0],
+        date: date,
       }),
     });
 
@@ -108,6 +111,7 @@ function Transactions({ selectedMonth }) {
     setAmount("");
     setDescription("");
     setCategoryId("");
+    setDate(new Date().toISOString().split("T")[0]);
     setSuggestedCategory(null);
 
     fetchTransactions();
@@ -303,6 +307,21 @@ function Transactions({ selectedMonth }) {
                   </span>
                 </div>
               )}
+            </div>
+
+            {/* Date Select */}
+            <div className="form-group">
+              <label className="form-label">Date</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="form-input"
+                required
+              />
+              <small style={{ color: "#6b7280", marginTop: "4px", display: "block" }}>
+                Select date for this transaction (currently in {selectedMonth})
+              </small>
             </div>
 
             {/* Category Select */}
