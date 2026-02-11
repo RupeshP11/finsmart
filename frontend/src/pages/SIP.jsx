@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import "../styles/sip.css";
+import { API_BASE_URL } from "../config";
 
 function SIP() {
   const [mode, setMode] = useState("sip");
@@ -24,7 +25,7 @@ function SIP() {
     setResult(null);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/sip/calculate", {
+      const res = await fetch(`${API_BASE_URL}/sip/calculate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

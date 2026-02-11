@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import "../styles/navbar.css";
+import { API_BASE_URL } from "../config";
 
 function Navbar({ onLogout }) {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ function Navbar({ onLogout }) {
 
   async function fetchUserData() {
     try {
-      const res = await fetch("http://127.0.0.1:8000/users/profile", {
+      const res = await fetch(`${API_BASE_URL}/users/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -49,7 +50,7 @@ function Navbar({ onLogout }) {
   async function handleUpdateProfile(e) {
     e.preventDefault();
     try {
-      const res = await fetch("http://127.0.0.1:8000/users/profile", {
+      const res = await fetch(`${API_BASE_URL}/users/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

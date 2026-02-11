@@ -16,6 +16,7 @@ import {
 } from "recharts";
 // Heatmap removed
 import "../styles/analytics-new.css";
+import { API_BASE_URL } from "../config";
 
 function Analytics({ selectedMonth }) {
   const token = localStorage.getItem("token");
@@ -32,7 +33,6 @@ function Analytics({ selectedMonth }) {
   const [error, setError] = useState(null);
 
   const COLORS = ["#0088FE", "#00C49F", "#FF8042", "#8B5CF6", "#EC4899"];
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
   const averageRatio = incomeExpenseRatio?.average_ratio ?? 0;
   const ratioDisplay = averageRatio > 0 ? (1 / averageRatio).toFixed(2) : "N/A";
   const hasAnyData =
@@ -74,32 +74,32 @@ function Analytics({ selectedMonth }) {
       const requests = [
         {
           key: "Expense breakdown",
-          url: `${API_BASE}/analytics/expense-by-category?year=${year}&month=${Number(month)}`,
+          url: `${API_BASE_URL}/analytics/expense-by-category?year=${year}&month=${Number(month)}`,
           apply: (data) => setPieData(Array.isArray(data) ? data : []),
         },
         {
           key: "Daily spending",
-          url: `${API_BASE}/analytics/daily-expense?year=${year}&month=${Number(month)}`,
+          url: `${API_BASE_URL}/analytics/daily-expense?year=${year}&month=${Number(month)}`,
           apply: (data) => setLineData(Array.isArray(data) ? data : []),
         },
         {
           key: "Quarterly comparison",
-          url: `${API_BASE}/analytics/historical-comparison`,
+          url: `${API_BASE_URL}/analytics/historical-comparison`,
           apply: (data) => setHistoricalData(data || null),
         },
         {
           key: "Budget vs actual",
-          url: `${API_BASE}/analytics/goal-vs-reality?year=${year}&month=${Number(month)}`,
+          url: `${API_BASE_URL}/analytics/goal-vs-reality?year=${year}&month=${Number(month)}`,
           apply: (data) => setGoalVsReality(data || null),
         },
         {
           key: "Subscriptions",
-          url: `${API_BASE}/analytics/recurring-transactions`,
+          url: `${API_BASE_URL}/analytics/recurring-transactions`,
           apply: (data) => setRecurringTransactions(data || null),
         },
         {
           key: "Income ratio",
-          url: `${API_BASE}/analytics/income-expense-ratio?months=12`,
+          url: `${API_BASE_URL}/analytics/income-expense-ratio?months=12`,
           apply: (data) => setIncomeExpenseRatio(data || null),
         },
       ];

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/budget.css";
+import { API_BASE_URL } from "../config";
 
 function getAlertByPercentage(percentage) {
   if (percentage >= 100) return { level: "danger", text: "Budget exceeded" };
@@ -23,7 +24,7 @@ function Budget({ selectedMonth }) {
   const [loading, setLoading] = useState(false);
 
   async function fetchCategories() {
-    const res = await fetch("http://127.0.0.1:8000/categories", {
+    const res = await fetch(`${API_BASE_URL}/categories`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
@@ -32,7 +33,7 @@ function Budget({ selectedMonth }) {
 
   async function fetchBudgetUsage(categoryId, month) {
     const res = await fetch(
-      `http://127.0.0.1:8000/budget/usage/${categoryId}?month=${month}`,
+      `${API_BASE_URL}/budget/usage/${categoryId}?month=${month}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     return await res.json();
@@ -71,7 +72,7 @@ function Budget({ selectedMonth }) {
       return;
     }
 
-    await fetch("http://127.0.0.1:8000/budget/", {
+    await fetch(`${API_BASE_URL}/budget/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

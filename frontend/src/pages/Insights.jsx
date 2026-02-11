@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import "../styles/insights-new.css";
+import { API_BASE_URL } from "../config";
 
 function Insights({ selectedMonth }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
   useEffect(() => {
     if (!selectedMonth || !token) {

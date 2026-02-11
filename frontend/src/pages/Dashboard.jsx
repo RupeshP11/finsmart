@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/dashboard.css";
+import { API_BASE_URL } from "../config";
 
 function Dashboard({ selectedMonth }) {
   const token = localStorage.getItem("token");
@@ -20,7 +21,7 @@ function Dashboard({ selectedMonth }) {
 
   async function fetchMonthlySummary(month) {
     const res = await fetch(
-      `http://127.0.0.1:8000/analytics/summary?month=${month}`,
+      `${API_BASE_URL}/analytics/summary?month=${month}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const data = await res.json();
@@ -36,7 +37,7 @@ function Dashboard({ selectedMonth }) {
   }
 
   async function fetchCategories() {
-    const res = await fetch("http://127.0.0.1:8000/categories", {
+    const res = await fetch(`${API_BASE_URL}/categories`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
@@ -48,7 +49,7 @@ function Dashboard({ selectedMonth }) {
 
   async function fetchAlerts(month) {
     const res = await fetch(
-      `http://127.0.0.1:8000/alerts?month=${month}`,
+      `${API_BASE_URL}/alerts?month=${month}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const data = await res.json();
@@ -69,7 +70,7 @@ function Dashboard({ selectedMonth }) {
     setAiLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/ai/search", {
+      const res = await fetch(`${API_BASE_URL}/ai/search`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

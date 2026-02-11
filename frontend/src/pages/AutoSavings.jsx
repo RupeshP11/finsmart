@@ -14,6 +14,7 @@ import {
   Cell,
 } from "recharts";
 import "../styles/autosavings.css";
+import { API_BASE_URL } from "../config";
 
 function AutoSavings({ selectedMonth: propMonth }) {
   const [data, setData] = useState(null);
@@ -89,25 +90,25 @@ function AutoSavings({ selectedMonth: propMonth }) {
 
       const [resAdvice, resTrend, resSafety, resConsistency, resGoals, resRecords, resRecs] =
         await Promise.all([
-          fetch(`http://127.0.0.1:8000/analytics/auto-savings${monthParam}`, {
+          fetch(`${API_BASE_URL}/analytics/auto-savings${monthParam}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://127.0.0.1:8000/savings-analytics/trend", {
+          fetch(`${API_BASE_URL}/savings-analytics/trend`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://127.0.0.1:8000/savings-analytics/safety-score", {
+          fetch(`${API_BASE_URL}/savings-analytics/safety-score`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://127.0.0.1:8000/savings-analytics/consistency", {
+          fetch(`${API_BASE_URL}/savings-analytics/consistency`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://127.0.0.1:8000/savings-goals/", {
+          fetch(`${API_BASE_URL}/savings-goals/`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://127.0.0.1:8000/savings-analytics/records", {
+          fetch(`${API_BASE_URL}/savings-analytics/records`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://127.0.0.1:8000/savings-analytics/recommendations", {
+          fetch(`${API_BASE_URL}/savings-analytics/recommendations`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -137,7 +138,7 @@ function AutoSavings({ selectedMonth: propMonth }) {
   async function addGoal(e) {
     e.preventDefault();
 
-    const res = await fetch("http://127.0.0.1:8000/savings-goals/", {
+    const res = await fetch(`${API_BASE_URL}/savings-goals/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -156,7 +157,7 @@ function AutoSavings({ selectedMonth: propMonth }) {
   async function addProgress(goalId) {
     if (!progressAmount) return;
 
-    const res = await fetch(`http://127.0.0.1:8000/savings-goals/${goalId}/add-progress`, {
+    const res = await fetch(`${API_BASE_URL}/savings-goals/${goalId}/add-progress`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -176,7 +177,7 @@ function AutoSavings({ selectedMonth: propMonth }) {
   async function deleteGoal(goalId) {
     if (!window.confirm("Delete this goal?")) return;
 
-    const res = await fetch(`http://127.0.0.1:8000/savings-goals/${goalId}`, {
+    const res = await fetch(`${API_BASE_URL}/savings-goals/${goalId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -189,7 +190,7 @@ function AutoSavings({ selectedMonth: propMonth }) {
   async function updateGoal(e) {
     e.preventDefault();
 
-    const res = await fetch(`http://127.0.0.1:8000/savings-goals/${editingGoal.id}`, {
+    const res = await fetch(`${API_BASE_URL}/savings-goals/${editingGoal.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

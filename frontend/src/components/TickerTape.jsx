@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "../styles/ticker.css";
+import { API_BASE_URL } from "../config";
 
 const FALLBACK_ITEMS = [
   { symbol: "NIFTY 50", price: 22124.3, change: 62.4, changePercent: 0.28 },
@@ -34,7 +35,7 @@ function TickerTape() {
   useEffect(() => {
     let isMounted = true;
 
-    fetch("http://127.0.0.1:8000/markets/ticker")
+    fetch(`${API_BASE_URL}/markets/ticker`)
       .then((res) => res.json())
       .then((data) => {
         if (!isMounted) return;

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/login.css";
+import { API_BASE_URL } from "../config";
 
 function Login({ onLogin }) {
   const [email, setEmail] = useState("");
@@ -15,7 +16,7 @@ function Login({ onLogin }) {
     setMessageType("");
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

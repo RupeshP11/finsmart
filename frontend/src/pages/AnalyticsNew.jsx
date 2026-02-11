@@ -18,6 +18,7 @@ import {
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/style.css";
 import "../styles/analytics-new.css";
+import { API_BASE_URL } from "../config";
 
 function Analytics({ selectedMonth }) {
   const token = localStorage.getItem("token");
@@ -45,31 +46,31 @@ function Analytics({ selectedMonth }) {
     try {
       setLoading(true);
       const [pie, line, hist, gvr, heat, recurring, ratio] = await Promise.all([
-        fetch(`http://127.0.0.1:8000/analytics/expense-by-category?year=${year}&month=${Number(month)}`, {
+        fetch(`${API_BASE_URL}/analytics/expense-by-category?year=${year}&month=${Number(month)}`, {
           headers: { Authorization: `Bearer ${token}` },
         }).then(r => r.json()),
         
-        fetch(`http://127.0.0.1:8000/analytics/daily-expense?year=${year}&month=${Number(month)}`, {
+        fetch(`${API_BASE_URL}/analytics/daily-expense?year=${year}&month=${Number(month)}`, {
           headers: { Authorization: `Bearer ${token}` },
         }).then(r => r.json()),
         
-        fetch("http://127.0.0.1:8000/analytics/historical-comparison", {
+        fetch(`${API_BASE_URL}/analytics/historical-comparison`, {
           headers: { Authorization: `Bearer ${token}` },
         }).then(r => r.json()),
         
-        fetch(`http://127.0.0.1:8000/analytics/goal-vs-reality?year=${year}&month=${Number(month)}`, {
+        fetch(`${API_BASE_URL}/analytics/goal-vs-reality?year=${year}&month=${Number(month)}`, {
           headers: { Authorization: `Bearer ${token}` },
         }).then(r => r.json()),
         
-        fetch(`http://127.0.0.1:8000/analytics/heatmap-data?year=${year}&month=${Number(month)}`, {
+        fetch(`${API_BASE_URL}/analytics/heatmap-data?year=${year}&month=${Number(month)}`, {
           headers: { Authorization: `Bearer ${token}` },
         }).then(r => r.json()),
         
-        fetch("http://127.0.0.1:8000/analytics/recurring-transactions", {
+        fetch(`${API_BASE_URL}/analytics/recurring-transactions`, {
           headers: { Authorization: `Bearer ${token}` },
         }).then(r => r.json()),
         
-        fetch("http://127.0.0.1:8000/analytics/income-expense-ratio?months=12", {
+        fetch(`${API_BASE_URL}/analytics/income-expense-ratio?months=12`, {
           headers: { Authorization: `Bearer ${token}` },
         }).then(r => r.json()),
       ]);

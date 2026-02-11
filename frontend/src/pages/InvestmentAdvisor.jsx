@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../styles/investment.css";
+import { API_BASE_URL } from "../config";
 
 function InvestmentAdvisor({ selectedMonth }) {
   const [risk, setRisk] = useState("medium");
@@ -66,7 +67,7 @@ function InvestmentAdvisor({ selectedMonth }) {
     try {
       const [year, month] = selectedMonth.split('-').map(Number);
       
-      const res = await fetch("http://127.0.0.1:8000/investment/advice", {
+      const res = await fetch(`${API_BASE_URL}/investment/advice`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

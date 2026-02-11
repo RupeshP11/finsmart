@@ -15,7 +15,7 @@ function Transactions({ selectedMonth }) {
 
   // Fetch categories
   async function fetchCategories() {
-    const res = await fetch("http://127.0.0.1:8000/categories", {
+    const res = await fetch(`${API_BASE_URL}/categories`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setCategories(await res.json());
@@ -23,7 +23,7 @@ function Transactions({ selectedMonth }) {
 
   // Fetch transactions
   async function fetchTransactions() {
-    const res = await fetch("http://127.0.0.1:8000/transactions", {
+    const res = await fetch(`${API_BASE_URL}/transactions`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setTransactions(await res.json());
@@ -50,7 +50,7 @@ function Transactions({ selectedMonth }) {
     setLoadingSuggestion(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/categorize-expense", {
+      const res = await fetch(`${API_BASE_URL}/categorize-expense`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +79,7 @@ function Transactions({ selectedMonth }) {
   async function addTransaction(e) {
     e.preventDefault();
 
-    const res = await fetch("http://127.0.0.1:8000/transactions", {
+    const res = await fetch(`${API_BASE_URL}/transactions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -95,7 +95,7 @@ function Transactions({ selectedMonth }) {
 
     // re-check alerts for this category
     await fetch(
-      `http://127.0.0.1:8000/budget/check-alerts/${categoryId}?month=${selectedMonth}`,
+      `${API_BASE_URL}/budget/check-alerts/${categoryId}?month=${selectedMonth}`,
       {
         method: "POST",
         headers: {
@@ -116,7 +116,7 @@ function Transactions({ selectedMonth }) {
   async function deleteTransaction(id, categoryId) {
     if (!window.confirm("Delete this transaction?")) return;
 
-    await fetch(`http://127.0.0.1:8000/transactions/${id}`, {
+    await fetch(`${API_BASE_URL}/transactions/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -125,7 +125,7 @@ function Transactions({ selectedMonth }) {
 
     // Re-check alerts for this category & month
     await fetch(
-      `http://127.0.0.1:8000/budget/check-alerts/${categoryId}?month=${selectedMonth}`,
+      `${API_BASE_URL}/budget/check-alerts/${categoryId}?month=${selectedMonth}`,
       {
         method: "POST",
         headers: {

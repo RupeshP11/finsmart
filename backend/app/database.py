@@ -1,7 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+import os
 
-DATABASE_URL = "postgresql://postgres:postgres123@localhost:5432/finsmart_db"
+# Read from environment variable, fallback to localhost for local development
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres123@localhost:5432/finsmart_db")
 
 engine = create_engine(DATABASE_URL)
 
