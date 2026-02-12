@@ -68,8 +68,9 @@ function TickerTape() {
     // Fetch immediately
     fetchTicker();
 
-    // Refresh every 30 seconds for more frequent live price updates
-    const interval = setInterval(fetchTicker, 30000);
+    // Refresh every 15 seconds for fresher live price updates on production
+    // This matches the backend cache duration of 15 seconds
+    const interval = setInterval(fetchTicker, 15000);
 
     return () => {
       isMounted = false;

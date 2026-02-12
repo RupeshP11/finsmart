@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Notification from "../components/Notification";
 import { API_BASE_URL } from "../config";
 import "../styles/transactions.css";
 
@@ -12,8 +13,24 @@ function Transactions({ selectedMonth }) {
   const [loadingSuggestion, setLoadingSuggestion] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Notification state
+  const [notification, setNotification] = useState({
+    visible: false,
+    message: "",
+    type: "success"
+  });
 
   const token = localStorage.getItem("token");
+
+  // Helper function to show notifications
+  const showNotification = (message, type = "success") => {
+    setNotification({
+      visible: true,
+      message,
+      type
+    });
+  };
 
   // Fetch categories
   async function fetchCategories() {
@@ -94,7 +111,7 @@ function Transactions({ selectedMonth }) {
     e.preventDefault();
 
     if (!amount || !categoryId) {
-      alert("Please fill all required fields");
+      showNotification("Please fill all required fields", "warning");
       return;
     }
 
@@ -140,10 +157,10 @@ function Transactions({ selectedMonth }) {
       setCategoryId("");
       setSuggestedCategory(null);
 
-      alert("Transaction added successfully!");
+      showNotification("Transaction added successfully!", "success");
     } catch (error) {
       console.error("Error adding transaction:", error);
-      alert("Error adding transaction: " + error.message);
+      showNotification(`Error: ${error.message}`, "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -175,10 +192,10 @@ function Transactions({ selectedMonth }) {
 
       // Refresh list
       await fetchTransactions();
-      alert("Transaction deleted successfully!");
+      showNotification("Transaction deleted successfully!", "success");
     } catch (error) {
       console.error("Error deleting transaction:", error);
-      alert("Error deleting transaction");
+      showNotification("Error deleting transaction", "error");
     }
   }
 
@@ -439,6 +456,15 @@ function Transactions({ selectedMonth }) {
           )}
         </div>
       </div>
+
+      {/* Notification Toast */}
+      {notification.visible && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification({ ...notification, visible: false })}
+        />
+      )}
     </div>
   );
 }

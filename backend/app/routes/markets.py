@@ -6,6 +6,7 @@ from urllib.parse import quote
 import yfinance as yf
 from fastapi import APIRouter
 import threading
+from datetime import datetime
 
 router = APIRouter(prefix="/markets", tags=["Markets"])
 
@@ -39,31 +40,16 @@ SYMBOL_LABELS = {
     "^BSESN": "SENSEX",
 }
 
-# Simple in-memory cache to avoid rate limits (20s refresh for live prices)
+# Simple in-memory cache to avoid rate limits (15s refresh for fresher live prices on production)
 _CACHE = {
     "timestamp": 0,
     "items": [],
+    "last_fetch_time": 0,
 }
 _CACHE_LOCK = threading.Lock()
 
-FALLBACK_ITEMS = [
-    {"symbol": "NIFTY 50", "price": 22124.3, "change": 62.4, "changePercent": 0.28},
-    {"symbol": "SENSEX", "price": 73112.1, "change": -148.6, "changePercent": -0.2},
-    {"symbol": "RELIANCE", "price": 2456.8, "change": 12.5, "changePercent": 0.51},
-    {"symbol": "TCS", "price": 3842.6, "change": -8.2, "changePercent": -0.21},
-    {"symbol": "INFY", "price": 1654.3, "change": 15.8, "changePercent": 0.96},
-    {"symbol": "HDFCBANK", "price": 1622.4, "change": -5.6, "changePercent": -0.34},
-    {"symbol": "ICICIBANK", "price": 1089.7, "change": 7.3, "changePercent": 0.67},
-    {"symbol": "BHARTIARTL", "price": 1245.2, "change": 18.4, "changePercent": 1.5},
-    {"symbol": "ITC", "price": 412.8, "change": 6.2, "changePercent": 1.52},
-    {"symbol": "VEDL", "price": 568.3, "change": -12.4, "changePercent": -2.13},
-    {"symbol": "BPCL", "price": 389.5, "change": 4.8, "changePercent": 1.24},
-    {"symbol": "HPCL", "price": 405.2, "change": -3.1, "changePercent": -0.76},
-    {"symbol": "MARUTI", "price": 11285.6, "change": 28.5, "changePercent": 0.25},
-    {"symbol": "SUNPHARMA", "price": 682.4, "change": -9.3, "changePercent": -1.35},
-    {"symbol": "WIPRO", "price": 458.2, "change": 3.2, "changePercent": 0.70},
-    {"symbol": "ASIANPAINT", "price": 3234.8, "change": 15.6, "changePercent": 0.48},
-]
+# Fallback data - will be populated on first successful fetch
+FALLBACK_ITEMS = []
 
 
 def fetch_nse_quotes(symbols):
@@ -219,31 +205,60 @@ def fetch_yfinance_quotes(symbols):
 
 @router.get("/ticker")
 def get_ticker():
-    """Get live stock quotes using free sources only - refreshes every 20s for fresher data."""
+    """Get live stock quotes using free sources only - refreshes every 15s for fresher data on production."""
     try:
         with _CACHE_LOCK:
             now = time.time()
-            # Cache for 20 seconds (shorter for fresher prices)
-            if _CACHE["items"] and now - _CACHE["timestamp"] < 20:
+            # Shorter cache duration (15s vs 20s) for fresher prices on production
+            # Always skip cache on first request or every refresh
+            cache_is_valid = _CACHE["items"] and (now - _CACHE["timestamp"] < 15)
+            
+            if cache_is_valid:
+                # Log cache hit for debugging
+                print(f"[TICKER] Cache hit - {len(_CACHE['items'])} items, age: {now - _CACHE['timestamp']:.1f}s")
                 return {"items": _CACHE["items"]}
 
-        # Try fetching from yfinance first (most reliable)
+        # Force fresh fetch from sources
+        print(f"[TICKER] Cache miss or expired - fetching fresh data...")
+        
+        # Try fetching from yfinance first (most reliable for live prices)
         quotes = fetch_yfinance_quotes(DEFAULT_SYMBOLS)
         
         # If yfinance fails, try NSE india API
-        if not quotes:
+        if not quotes or len(quotes) < 5:
+            print(f"[TICKER] yfinance returned {len(quotes) if quotes else 0} items, trying NSE API...")
             quotes = fetch_nse_quotes(DEFAULT_SYMBOLS)
         
         if quotes and len(quotes) > 0:
+            print(f"[TICKER] Successfully fetched {len(quotes)} live quotes")
             with _CACHE_LOCK:
                 _CACHE["items"] = quotes
                 _CACHE["timestamp"] = time.time()
+                # Update fallback data with fresh quotes
+                global FALLBACK_ITEMS
+                FALLBACK_ITEMS = quotes.copy()
             return {"items": quotes}
         else:
-            # Return fallback data if all sources fail
-            return {"items": FALLBACK_ITEMS}
+            # Use previously cached data if available
+            if _CACHE["items"]:
+                print(f"[TICKER] All sources failed - returning cached data")
+                return {"items": _CACHE["items"]}
+            
+            # Last resort: return fallback (which now contains last successful fetch)
+            print(f"[TICKER] No cached data available - returning fallback data")
+            if FALLBACK_ITEMS:
+                return {"items": FALLBACK_ITEMS}
+            else:
+                # If nothing works, return empty array
+                return {"items": []}
+                
     except Exception as e:
+        print(f"[TICKER] Exception: {str(e)}")
         # Always return cached or fallback data on error
         if _CACHE["items"]:
+            print(f"[TICKER] Returning cached data after exception")
             return {"items": _CACHE["items"]}
-        return {"items": FALLBACK_ITEMS}
+        if FALLBACK_ITEMS:
+            print(f"[TICKER] Returning fallback data after exception")
+            return {"items": FALLBACK_ITEMS}
+        return {"items": []}
