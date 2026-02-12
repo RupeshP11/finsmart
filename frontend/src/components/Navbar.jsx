@@ -7,6 +7,7 @@ function Navbar({ onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [userData, setUserData] = useState({
@@ -74,30 +75,54 @@ function Navbar({ onLogout }) {
 
   const isActive = (path) => location.pathname === path;
 
+  const navItems = [
+    { path: "/dashboard", label: "Dashboard" },
+    { path: "/transactions", label: "Transactions" },
+    { path: "/budget", label: "Budget" },
+    { path: "/auto-savings", label: "Auto Savings" },
+    { path: "/analytics", label: "Analytics" },
+    { path: "/insights", label: "Insights" },
+    { path: "/sip", label: "SIP Calculator" },
+    { path: "/investment", label: "Investment Advisor" },
+  ];
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
     <header className="navbar">
       <div className="navbar__left">
         <button
           type="button"
           className="navbar__logo"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => {
+            navigate("/dashboard");
+            closeMobileMenu();
+          }}
           title="Go to Dashboard"
           aria-label="Go to Dashboard"
         >
           Fin<span className="navbar__logo-accent">Smart</span>
         </button>
 
-        <nav className="navbar__links" aria-label="Primary">
-          {[
-            { path: "/dashboard", label: "Dashboard" },
-            { path: "/transactions", label: "Transactions" },
-            { path: "/budget", label: "Budget" },
-            { path: "/auto-savings", label: "Auto Savings" },
-            { path: "/analytics", label: "Analytics" },
-            { path: "/insights", label: "Insights" },
-            { path: "/sip", label: "SIP Calculator" },
-            { path: "/investment", label: "Investment Advisor" },
-          ].map((item) => (
+        <button
+          type="button"
+          className="navbar__hamburger"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={mobileMenuOpen}
+        >
+          <span className="navbar__hamburger-line"></span>
+          <span className="navbar__hamburger-line"></span>
+          <span className="navbar__hamburger-line"></span>
+        </button>
+
+        <nav 
+          className={`navbar__links ${mobileMenuOpen ? "navbar__links--open" : ""}`} 
+          aria-label="Primary"
+        >
+          {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
@@ -106,6 +131,7 @@ function Navbar({ onLogout }) {
                   ? "navbar__link navbar__link--active"
                   : "navbar__link"
               }
+              onClick={closeMobileMenu}
             >
               {item.label}
             </NavLink>
