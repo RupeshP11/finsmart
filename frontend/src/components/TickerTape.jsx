@@ -23,6 +23,7 @@ const FALLBACK_ITEMS = [
 
 function TickerTape() {
   const [items, setItems] = useState(FALLBACK_ITEMS);
+  const [isLoading, setIsLoading] = useState(true);
 
   const formatter = useMemo(
     () =>
@@ -35,23 +36,40 @@ function TickerTape() {
   useEffect(() => {
     let isMounted = true;
 
-    const fetchTicker = () => {
-      fetch(`${API_BASE_URL}/markets/ticker`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (!isMounted) return;
+    const fetchTicker = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/markets/ticker`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        if (isMounted) {
           if (Array.isArray(data.items) && data.items.length > 0) {
             setItems(data.items);
+          } else {
+            setItems(FALLBACK_ITEMS);
           }
-        })
-        .catch(() => {});
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.warn("Failed to fetch ticker data:", error);
+        if (isMounted) {
+          setItems(FALLBACK_ITEMS);
+          setIsLoading(false);
+        }
+      }
     };
 
     // Fetch immediately
     fetchTicker();
 
-    // Refresh every 60 seconds for live prices
-    const interval = setInterval(fetchTicker, 60000);
+    // Refresh every 30 seconds for more frequent live price updates
+    const interval = setInterval(fetchTicker, 30000);
 
     return () => {
       isMounted = false;
@@ -64,7 +82,7 @@ function TickerTape() {
   return (
     <div className="ticker-bar" role="region" aria-label="Live market prices">
       <div className="ticker-inner">
-        <div className="ticker-track">
+        <div className="ticker-track" data-loading={isLoading}>
           {loopItems.map((item, index) => {
             const isUp = Number(item.change) >= 0;
             const changeSign = isUp ? "+" : "";

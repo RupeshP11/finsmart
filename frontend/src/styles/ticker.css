@@ -4,11 +4,12 @@
   position: sticky;
   top: 0;
   z-index: 110;
-  height: 36px;
+  height: 40px;
   background: linear-gradient(90deg, #0f172a 0%, #111827 100%);
   color: #e5e7eb;
   border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   overflow: hidden;
+  width: 100%;
 }
 
 .ticker-inner {
@@ -43,10 +44,11 @@
 .ticker-track {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 16px;
   white-space: nowrap;
   animation: tickerMarquee 200s linear infinite;
   will-change: transform;
+  padding: 0;
 }
 
 .ticker-bar:hover .ticker-track {
@@ -56,10 +58,12 @@
 .ticker-item {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: 10px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.2px;
+  flex-shrink: 0;
+  padding: 0 8px;
 }
 
 .ticker-symbol {
@@ -92,19 +96,113 @@
   }
 }
 
+/* Tablet view */
+@media (max-width: 1024px) {
+  .ticker-bar {
+    height: 38px;
+  }
+
+  .ticker-item {
+    font-size: 12px;
+    gap: 8px;
+    padding: 0 6px;
+  }
+
+  .ticker-change {
+    font-size: 11px;
+  }
+}
+
+/* Mobile view - medium screens */
 @media (max-width: 768px) {
   .ticker-bar {
-    height: 32px;
+    height: 36px;
+  }
+
+  .ticker-inner::before,
+  .ticker-inner::after {
+    width: 32px;
   }
 
   .ticker-item {
     font-size: 11px;
+    gap: 6px;
+    padding: 0 4px;
+  }
+
+  .ticker-symbol {
+    font-size: 11px;
+  }
+
+  .ticker-price {
+    font-size: 11px;
+  }
+
+  .ticker-change {
+    font-size: 10px;
+  }
+
+  .ticker-track {
+    gap: 12px;
+  }
+}
+
+/* Mobile view - small screens */
+@media (max-width: 480px) {
+  .ticker-bar {
+    height: 32px;
+  }
+
+  .ticker-inner::before,
+  .ticker-inner::after {
+    width: 24px;
+  }
+
+  .ticker-item {
+    font-size: 10px;
+    gap: 4px;
+    padding: 0 2px;
+  }
+
+  .ticker-symbol {
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .ticker-price {
+    font-size: 10px;
+  }
+
+  .ticker-change {
+    font-size: 9px;
+  }
+
+  .ticker-track {
+    gap: 8px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+  .ticker-bar {
+    height: 30px;
+  }
+
+  .ticker-item {
+    font-size: 9px;
+    gap: 3px;
+    padding: 0 2px;
+  }
+
+  .ticker-change {
+    font-size: 8px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .ticker-track {
     animation: none;
+    overflow-x: auto;
     padding-left: 0;
   }
 

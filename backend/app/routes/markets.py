@@ -5,6 +5,7 @@ import urllib.request
 from urllib.parse import quote
 import yfinance as yf
 from fastapi import APIRouter
+import threading
 
 router = APIRouter(prefix="/markets", tags=["Markets"])
 
@@ -30,16 +31,20 @@ DEFAULT_SYMBOLS = [
     "ASIANPAINT.NS",
 ]
 
+EQUITY_SYMBOLS = [s for s in DEFAULT_SYMBOLS if not s.startswith("^")]
+INDEX_SYMBOLS = [s for s in DEFAULT_SYMBOLS if s.startswith("^")]
+
 SYMBOL_LABELS = {
     "^NSEI": "NIFTY 50",
     "^BSESN": "SENSEX",
 }
 
-# Simple in-memory cache to avoid rate limits (30s for fresher data)
+# Simple in-memory cache to avoid rate limits (20s refresh for live prices)
 _CACHE = {
     "timestamp": 0,
     "items": [],
 }
+_CACHE_LOCK = threading.Lock()
 
 FALLBACK_ITEMS = [
     {"symbol": "NIFTY 50", "price": 22124.3, "change": 62.4, "changePercent": 0.28},
@@ -114,110 +119,131 @@ def _display_symbol(symbol):
 
 
 def fetch_yfinance_quotes(symbols):
-    """Fetch quotes from yfinance (free, no API key needed) - LIVE prices."""
+    """Fetch quotes from yfinance (free, no API key needed) - LIVE prices with timeout."""
     items = []
-    for symbol in symbols:
+    
+    def fetch_single_symbol(symbol):
+        """Fetch data for a single symbol with timeout."""
         try:
             stock = yf.Ticker(symbol)
-
-            # Try to get today's live data with 1-minute interval
+            
+            # Set timeout for all network operations
+            import socket
+            original_timeout = socket.getdefaulttimeout()
+            socket.setdefaulttimeout(5)
+            
             try:
-                data = stock.history(period="1d", interval="1m")
-                if len(data) >= 2:
-                    # Get the very latest price available (most recent minute)
-                    current_price = data["Close"].dropna().iloc[-1]
-                    
-                    # Compare to previous close from info (day's opening reference)
-                    info = stock.info if hasattr(stock, 'info') else {}
-                    prev_close = info.get("previousClose") or info.get("regularMarketPreviousClose")
-                    
-                    # If no previous close, use first price of today
-                    if not prev_close or prev_close == 0:
-                        prev_close = data["Open"].dropna().iloc[0]
-                    
-                    change = current_price - prev_close
-                    change_percent = (change / prev_close * 100) if prev_close > 0 else 0
-                    
-                    items.append(
-                        {
+                # Try to get today's live data with 1-minute interval (for trading hours)
+                try:
+                    data = stock.history(period="1d", interval="1m")
+                    if len(data) >= 2:
+                        # Get the very latest price available (most recent minute)
+                        current_price = data["Close"].dropna().iloc[-1]
+                        
+                        # Compare to previous close from info (day's opening reference)
+                        info = stock.info if hasattr(stock, 'info') else {}
+                        prev_close = info.get("previousClose") or info.get("regularMarketPreviousClose")
+                        
+                        # If no previous close, use first price of today
+                        if not prev_close or prev_close == 0:
+                            prev_close = data["Open"].dropna().iloc[0]
+                        
+                        change = current_price - prev_close
+                        change_percent = (change / prev_close * 100) if prev_close > 0 else 0
+                        
+                        return {
                             "symbol": _display_symbol(symbol),
                             "price": float(round(current_price, 2)),
                             "change": float(round(change, 2)),
                             "changePercent": float(round(change_percent, 2)),
                         }
-                    )
-                    continue
-            except Exception:
-                pass
+                except Exception:
+                    pass
 
-            # Fallback: Try 5-day data with 1-hour interval (works even when market closed)
-            try:
-                data = stock.history(period="5d", interval="1h")
-                if len(data) >= 2:
-                    current_price = data["Close"].dropna().iloc[-1]
-                    prev_close = data["Close"].dropna().iloc[-2]
-                    
-                    change = current_price - prev_close
-                    change_percent = (change / prev_close * 100) if prev_close > 0 else 0
-                    
-                    items.append(
-                        {
+                # Fallback: Try 5-day data with 1-hour interval (works even when market closed)
+                try:
+                    data = stock.history(period="5d", interval="1h")
+                    if len(data) >= 2:
+                        current_price = data["Close"].dropna().iloc[-1]
+                        prev_close = data["Close"].dropna().iloc[-2]
+                        
+                        change = current_price - prev_close
+                        change_percent = (change / prev_close * 100) if prev_close > 0 else 0
+                        
+                        return {
                             "symbol": _display_symbol(symbol),
                             "price": float(round(current_price, 2)),
                             "change": float(round(change, 2)),
                             "changePercent": float(round(change_percent, 2)),
                         }
-                    )
-                    continue
-            except Exception:
-                pass
+                except Exception:
+                    pass
 
-            # Last resort: Try info dict with basic data
-            try:
-                info = stock.info
-                current = info.get("regularMarketPrice") or info.get("currentPrice")
-                prev = info.get("regularMarketPreviousClose") or info.get("previousClose")
-                
-                if current and prev:
-                    change = current - prev
-                    change_percent = (change / prev * 100) if prev > 0 else 0
+                # Last resort: Try info dict with basic data
+                try:
+                    info = stock.info
+                    current = info.get("regularMarketPrice") or info.get("currentPrice")
+                    prev = info.get("regularMarketPreviousClose") or info.get("previousClose")
                     
-                    items.append(
-                        {
+                    if current and prev:
+                        change = current - prev
+                        change_percent = (change / prev * 100) if prev > 0 else 0
+                        
+                        return {
                             "symbol": _display_symbol(symbol),
                             "price": float(round(current, 2)),
                             "change": float(round(change, 2)),
                             "changePercent": float(round(change_percent, 2)),
                         }
-                    )
-            except Exception:
-                pass
-
-        except Exception as e:
-            # Skip symbols that fail completely
-            continue
-
+                except Exception:
+                    pass
+                    
+            finally:
+                socket.setdefaulttimeout(original_timeout)
+                
+        except Exception:
+            pass
+        
+        return None
+    
+    # Fetch all symbols (parallelize for faster execution)
+    for symbol in symbols:
+        result = fetch_single_symbol(symbol)
+        if result:
+            items.append(result)
+            # Add small delay to avoid rate limiting
+            time.sleep(0.1)
+    
     return items
 
 
 @router.get("/ticker")
 def get_ticker():
-    """Get live stock quotes using free sources only - refreshes every 30s."""
+    """Get live stock quotes using free sources only - refreshes every 20s for fresher data."""
     try:
-        now = time.time()
-        # Cache for 30 seconds (shorter for fresher prices)
-        if _CACHE["items"] and now - _CACHE["timestamp"] < 30:
-            return {"items": _CACHE["items"]}
+        with _CACHE_LOCK:
+            now = time.time()
+            # Cache for 20 seconds (shorter for fresher prices)
+            if _CACHE["items"] and now - _CACHE["timestamp"] < 20:
+                return {"items": _CACHE["items"]}
 
-        quotes = fetch_nse_quotes(DEFAULT_SYMBOLS)
-        if not quotes:
-            quotes = fetch_yfinance_quotes(DEFAULT_SYMBOLS)
+        # Try fetching from yfinance first (most reliable)
+        quotes = fetch_yfinance_quotes(DEFAULT_SYMBOLS)
         
-        if quotes:
-            _CACHE["items"] = quotes
-            _CACHE["timestamp"] = now
+        # If yfinance fails, try NSE india API
+        if not quotes:
+            quotes = fetch_nse_quotes(DEFAULT_SYMBOLS)
+        
+        if quotes and len(quotes) > 0:
+            with _CACHE_LOCK:
+                _CACHE["items"] = quotes
+                _CACHE["timestamp"] = time.time()
             return {"items": quotes}
         else:
+            # Return fallback data if all sources fail
             return {"items": FALLBACK_ITEMS}
-    except Exception:
+    except Exception as e:
+        # Always return cached or fallback data on error
+        if _CACHE["items"]:
+            return {"items": _CACHE["items"]}
         return {"items": FALLBACK_ITEMS}

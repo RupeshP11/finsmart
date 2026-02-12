@@ -459,11 +459,105 @@
   }
 
   .navbar__logo {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .navbar__link {
-    font-size: 13px;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .navbar__profile {
+    padding: 6px 12px 6px 6px;
+    font-size: 12px;
+    min-height: 40px;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .sidebar__header {
+    padding: 14px 16px;
+  }
+
+  .sidebar__content {
+    padding: 16px 14px;
+  }
+
+  .sidebar__avatar-large {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+  }
+
+  .modal-overlay {
+    padding: 64px 12px 12px 12px;
+  }
+
+  .modal {
+    max-width: calc(100% - 24px);
+    max-height: 80vh;
+  }
+
+  .modal__header {
+    padding: 16px;
+  }
+
+  .modal__header h3 {
+    font-size: var(--fs-body);
+  }
+
+  .modal__form,
+  .modal__content {
+    padding: 16px;
+  }
+
+  .form__group input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .sidebar__logout-btn,
+  .sidebar__edit-btn {
+    min-height: 40px;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+  .navbar {
+    padding: 8px 10px;
+  }
+
+  .navbar__logo {
+    font-size: 16px;
+  }
+
+  .navbar__link {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .sidebar__header h3 {
+    font-size: 14px;
+  }
+
+  .sidebar__content {
+    padding: 12px 10px;
+  }
+
+  .modal {
+    border-radius: var(--radius-md);
+  }
+
+  .modal__close {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
   }
 }
 /* Transparent Blur Cards - Profile */

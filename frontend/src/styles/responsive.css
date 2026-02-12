@@ -412,26 +412,96 @@
     padding: var(--space-sm);
   }
 
+  .page-content {
+    gap: var(--space-md);
+  }
+
   .card {
     padding: var(--space-md);
+    margin-bottom: var(--space-md);
   }
 
   .form-input,
   .form-select,
   .form-textarea {
     font-size: 16px;
+    padding: var(--space-md) var(--space-lg);
+    min-height: 44px;
   }
 
   .btn {
     width: 100%;
+    min-height: 44px;
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--fs-body-sm);
+    border-radius: var(--radius-md);
+  }
+
+  .btn-small {
+    min-height: 40px;
   }
 
   h1 {
-    font-size: var(--fs-body);
+    font-size: var(--fs-subtitle);
+    margin-bottom: var(--space-lg);
   }
 
   h2 {
     font-size: var(--fs-body);
+    margin-bottom: var(--space-md);
+  }
+
+  h3 {
+    font-size: var(--fs-body-sm);
+  }
+
+  .stat-card {
+    padding: var(--space-md);
+    min-height: auto;
+  }
+
+  .form-label {
+    font-size: var(--fs-body-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .flex-row {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .grid-2,
+  .grid-3 {
+    gap: var(--space-md);
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* Extra small screens (< 360px) */
+@media (max-width: 359px) {
+  .page-container {
+    padding: var(--space-xs);
+  }
+
+  .card {
+    padding: var(--space-sm);
+  }
+
+  .btn {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--fs-helper);
+  }
+
+  h1, h2, h3 {
+    margin-bottom: var(--space-sm);
   }
 }
 
