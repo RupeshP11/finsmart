@@ -386,3 +386,185 @@
     height: 300px;
   }
 }
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .budget-header {
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
+  }
+
+  .budget-header h1 {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .budget-header p {
+    font-size: 12px;
+  }
+
+  .budget-summary {
+    gap: var(--space-md);
+  }
+
+  .summary-item {
+    padding: 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .summary-label {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  .summary-value {
+    font-size: 18px;
+  }
+
+  .budget-grid {
+    gap: var(--space-md);
+  }
+
+  .budget-card {
+    border-radius: var(--radius-md);
+  }
+
+  .budget-card-header {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .budget-card-header h3 {
+    font-size: 13px;
+  }
+
+  .budget-card-footer {
+    font-size: 11px;
+  }
+
+  .budget-card-content {
+    padding: 12px;
+  }
+
+  .progress-bar {
+    height: 6px;
+    border-radius: 3px;
+    margin: 8px 0;
+  }
+
+  .category-label {
+    font-size: 12px;
+  }
+
+  .amount-label {
+    font-size: 11px;
+  }
+
+  .amount-value {
+    font-size: 13px;
+  }
+
+  .button-group {
+    gap: 8px;
+  }
+
+  .button-group .btn {
+    flex: 1;
+    font-size: 12px;
+    padding: 8px;
+    min-height: 36px;
+  }
+
+  .page-info-section {
+    gap: 16px;
+    padding: 16px;
+    margin: 24px -16px;
+  }
+
+  .info-placeholder {
+    height: 200px;
+  }
+
+  .info-text h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .info-text p {
+    font-size: 13px;
+  }
+}
+
+/* Ultra-small screens */
+@media (max-width: 360px) {
+  .budget-header h1 {
+    font-size: 16px;
+  }
+
+  .budget-header p {
+    font-size: 11px;
+  }
+
+  .summary-item {
+    padding: 10px;
+  }
+
+  .summary-label {
+    font-size: 10px;
+  }
+
+  .summary-value {
+    font-size: 16px;
+  }
+
+  .budget-grid {
+    gap: 10px;
+  }
+
+  .budget-card-header {
+    padding: 10px;
+  }
+
+  .budget-card-header h3 {
+    font-size: 12px;
+  }
+
+  .budget-card-content {
+    padding: 10px;
+  }
+
+  .category-label {
+    font-size: 11px;
+  }
+
+  .amount-label {
+    font-size: 10px;
+  }
+
+  .amount-value {
+    font-size: 12px;
+  }
+
+  .button-group .btn {
+    font-size: 11px;
+    padding: 6px;
+    min-height: 32px;
+  }
+
+  .page-info-section {
+    padding: 12px;
+    margin: 16px -12px;
+  }
+
+  .info-placeholder {
+    height: 160px;
+  }
+
+  .info-text h3 {
+    font-size: 14px;
+  }
+
+  .info-text p {
+    font-size: 12px;
+  }
+}

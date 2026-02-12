@@ -241,6 +241,189 @@
   }
 }
 
+/* Extra small screens */
+@media (max-width: 480px) {
+  .transactions-header {
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
+  }
+
+  .transactions-header h1 {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .form-card {
+    margin-bottom: var(--space-lg);
+    border-radius: var(--radius-md);
+  }
+
+  .transaction-form {
+    gap: var(--space-md);
+  }
+
+  .radio-group {
+    gap: 8px;
+  }
+
+  .radio-label {
+    padding: 8px 10px;
+    font-size: 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .form-group {
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px;
+    padding: 10px;
+    border-radius: var(--radius-md);
+    min-height: 40px;
+  }
+
+  textarea {
+    min-height: 80px;
+  }
+
+  .suggestion-box {
+    padding: 10px;
+    gap: 8px;
+    border-radius: var(--radius-md);
+  }
+
+  .suggestion-text {
+    font-size: 12px;
+  }
+
+  .btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 36px;
+    border-radius: var(--radius-md);
+  }
+
+  .transactions-list {
+    gap: var(--space-md);
+  }
+
+  .transaction-item {
+    padding: 12px;
+    border-radius: var(--radius-md);
+    gap: 12px;
+  }
+
+  .transaction-info {
+    gap: 8px;
+  }
+
+  .transaction-description {
+    font-size: 12px;
+  }
+
+  .transaction-category {
+    font-size: 11px;
+  }
+
+  .transaction-date {
+    font-size: 11px;
+  }
+
+  .transaction-amount {
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  .btn-delete {
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: var(--radius-md);
+  }
+}
+
+/* Ultra-small screens */
+@media (max-width: 360px) {
+  .transactions-header h1 {
+    font-size: 16px;
+  }
+
+  .radio-group {
+    gap: 6px;
+  }
+
+  .radio-label {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .form-group label {
+    font-size: 11px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px;
+    padding: 8px;
+    min-height: 36px;
+  }
+
+  textarea {
+    min-height: 70px;
+  }
+
+  .suggestion-box {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .suggestion-text {
+    font-size: 11px;
+  }
+
+  .btn {
+    padding: 6px 10px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+
+  .transaction-item {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .transaction-description {
+    font-size: 11px;
+  }
+
+  .transaction-category {
+    font-size: 10px;
+  }
+
+  .transaction-date {
+    font-size: 10px;
+  }
+
+  .transaction-amount {
+    font-size: 12px;
+  }
+
+  .btn-delete {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+}
+
 /* Spinner animation for loading state */
 @keyframes spin {
   to {

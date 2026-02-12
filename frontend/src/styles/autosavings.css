@@ -691,3 +691,223 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .autosavings-header {
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
+  }
+
+  .autosavings-header h1 {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .autosavings-header p {
+    font-size: 12px;
+  }
+
+  .advice-content {
+    gap: var(--space-md);
+  }
+
+  .advice-card {
+    border-radius: var(--radius-md);
+  }
+
+  .advice-card .amount {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .advice-card .details {
+    padding: 12px;
+  }
+
+  .details-row {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .details-label {
+    font-size: 11px;
+  }
+
+  .details-value {
+    font-size: 12px;
+  }
+
+  .stat-grid {
+    gap: var(--space-md) !important;
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 16px;
+  }
+
+  .recommendations-list {
+    gap: var(--space-md);
+  }
+
+  .recommendation-card {
+    padding: 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .recommendation-card h4 {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .recommendation-card p {
+    font-size: 12px;
+  }
+
+  .goal-header {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .goal-header h3 {
+    font-size: 14px;
+  }
+
+  .goal-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .goal-actions .btn {
+    font-size: 12px;
+    padding: 8px 12px;
+    min-height: 36px;
+  }
+
+  .table-header,
+  .table-row {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .table-header {
+    padding: 12px 8px;
+  }
+
+  .modal {
+    padding: 12px;
+  }
+
+  .modal-content {
+    padding: 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .modal-header {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .modal-header h3 {
+    font-size: 14px;
+  }
+
+  .modal-buttons {
+    gap: 8px;
+  }
+
+  .modal-buttons .btn {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
+
+/* Ultra-small screens */
+@media (max-width: 360px) {
+  .autosavings-header {
+    margin-bottom: var(--space-md);
+    padding-bottom: 8px;
+  }
+
+  .autosavings-header h1 {
+    font-size: 16px;
+  }
+
+  .autosavings-header p {
+    font-size: 11px;
+  }
+
+  .advice-content {
+    gap: 10px;
+  }
+
+  .advice-card .amount {
+    font-size: 14px;
+  }
+
+  .details-label {
+    font-size: 10px;
+  }
+
+  .details-value {
+    font-size: 11px;
+  }
+
+  .stat-card {
+    padding: 10px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .stat-value {
+    font-size: 14px;
+  }
+
+  .recommendation-card h4 {
+    font-size: 12px;
+  }
+
+  .recommendation-card p {
+    font-size: 11px;
+  }
+
+  .goal-header h3 {
+    font-size: 12px;
+  }
+
+  .goal-actions .btn {
+    font-size: 11px;
+    padding: 6px 10px;
+    min-height: 32px;
+  }
+
+  .table-header,
+  .table-row {
+    font-size: 11px;
+    padding: 6px;
+  }
+
+  .modal-content {
+    padding: 12px;
+  }
+
+  .modal-header h3 {
+    font-size: 12px;
+  }
+
+  .modal-buttons .btn {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+}

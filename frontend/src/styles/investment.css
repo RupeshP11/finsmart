@@ -454,3 +454,150 @@
     height: 300px;
   }
 }
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .investment-container {
+    padding: 16px;
+  }
+
+  .page-title-section {
+    padding: 16px 0;
+  }
+
+  .page-title-section h1 {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .balance-box {
+    padding: 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .balance-label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .balance-amount {
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+
+  .balance-change {
+    font-size: 11px;
+  }
+
+  .risk-options {
+    gap: 10px;
+  }
+
+  .risk-option {
+    padding: 12px;
+    font-size: 12px;
+  }
+
+  .risk-circle {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .allocation-card {
+    padding: 12px 16px;
+  }
+
+  .card-legend {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .legend-item {
+    font-size: 11px;
+  }
+
+  .investment-info-section {
+    gap: 16px;
+    padding: 16px;
+    margin: 24px -16px;
+  }
+
+  .info-placeholder {
+    height: 200px;
+  }
+
+  .info-text h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .info-text p {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .info-stats-box {
+    gap: 12px;
+  }
+
+  .stat-item {
+    padding: 12px;
+    font-size: 12px;
+  }
+
+  .stat-icon {
+    font-size: 24px;
+  }
+}
+
+/* Ultra-small screens */
+@media (max-width: 360px) {
+  .investment-container {
+    padding: 12px;
+  }
+
+  .page-title-section h1 {
+    font-size: 18px;
+  }
+
+  .balance-amount {
+    font-size: 24px;
+  }
+
+  .risk-options {
+    gap: 8px;
+  }
+
+  .risk-option {
+    padding: 10px;
+    font-size: 11px;
+  }
+
+  .risk-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .allocation-card {
+    padding: 10px 12px;
+  }
+
+  .investment-info-section {
+    padding: 12px;
+    margin: 16px -12px;
+  }
+
+  .info-placeholder {
+    height: 160px;
+  }
+
+  .info-text h3 {
+    font-size: 14px;
+  }
+
+  .info-text p {
+    font-size: 12px;
+  }
+}
