@@ -3,27 +3,22 @@ import "../styles/ticker.css";
 import { API_BASE_URL } from "../config";
 
 const FALLBACK_ITEMS = [
-  { symbol: "NIFTY 50", price: 22124.3, change: 62.4, changePercent: 0.28 },
-  { symbol: "SENSEX", price: 73112.1, change: -148.6, changePercent: -0.2 },
-  { symbol: "RELIANCE", price: 2456.8, change: 12.5, changePercent: 0.51 },
-  { symbol: "TCS", price: 3842.6, change: -8.2, changePercent: -0.21 },
-  { symbol: "INFY", price: 1654.3, change: 15.8, changePercent: 0.96 },
-  { symbol: "HDFCBANK", price: 1622.4, change: -5.6, changePercent: -0.34 },
-  { symbol: "ICICIBANK", price: 1089.7, change: 7.3, changePercent: 0.67 },
-  { symbol: "BHARTIARTL", price: 1245.2, change: 18.4, changePercent: 1.5 },
-  { symbol: "ITC", price: 412.8, change: 6.2, changePercent: 1.52 },
-  { symbol: "VEDL", price: 568.3, change: -12.4, changePercent: -2.13 },
-  { symbol: "BPCL", price: 389.5, change: 4.8, changePercent: 1.24 },
-  { symbol: "HPCL", price: 405.2, change: -3.1, changePercent: -0.76 },
-  { symbol: "MARUTI", price: 11285.6, change: 28.5, changePercent: 0.25 },
-  { symbol: "SUNPHARMA", price: 682.4, change: -9.3, changePercent: -1.35 },
-  { symbol: "WIPRO", price: 458.2, change: 3.2, changePercent: 0.70 },
-  { symbol: "ASIANPAINT", price: 3234.8, change: 15.6, changePercent: 0.48 },
+  { symbol: "NIFTY 50", price: 22500.0, change: 0.0, changePercent: 0.0 },
+  { symbol: "SENSEX", price: 74000.0, change: 0.0, changePercent: 0.0 },
+  { symbol: "RELIANCE", price: 2500.0, change: 0.0, changePercent: 0.0 },
+  { symbol: "TCS", price: 3850.0, change: 0.0, changePercent: 0.0 },
+  { symbol: "INFY", price: 1650.0, change: 0.0, changePercent: 0.0 },
+  { symbol: "HDFCBANK", price: 1620.0, change: 0.0, changePercent: 0.0 },
+  { symbol: "ICICIBANK", price: 1090.0, change: 0.0, changePercent: 0.0 },
+  { symbol: "HINDUNILVR", price: 2350.0, change: 0.0, changePercent: 0.0 },
+  { symbol: "BHARTIARTL", price: 1250.0, change: 0.0, changePercent: 0.0 },
+  { symbol: "ITC", price: 415.0, change: 0.0, changePercent: 0.0 },
 ];
 
 function TickerTape() {
   const [items, setItems] = useState(FALLBACK_ITEMS);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState(null);
 
   const formatter = useMemo(
     () =>
@@ -51,13 +46,16 @@ function TickerTape() {
         if (isMounted) {
           if (Array.isArray(data.items) && data.items.length > 0) {
             setItems(data.items);
+            setLastUpdate(new Date());
+            console.log(`[TICKER] Updated with ${data.items.length} items`);
           } else {
+            console.warn("[TICKER] No items received, using fallback");
             setItems(FALLBACK_ITEMS);
           }
           setIsLoading(false);
         }
       } catch (error) {
-        console.warn("Failed to fetch ticker data:", error);
+        console.error("[TICKER] Fetch error:", error);
         if (isMounted) {
           setItems(FALLBACK_ITEMS);
           setIsLoading(false);
@@ -68,9 +66,9 @@ function TickerTape() {
     // Fetch immediately
     fetchTicker();
 
-    // Refresh every 15 seconds for fresher live price updates on production
-    // This matches the backend cache duration of 15 seconds
-    const interval = setInterval(fetchTicker, 15000);
+    // Refresh every 10 seconds to match backend cache (10s)
+    // This ensures fresh live prices on both localhost and production
+    const interval = setInterval(fetchTicker, 10000);
 
     return () => {
       isMounted = false;
