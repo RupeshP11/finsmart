@@ -46,7 +46,7 @@
   align-items: center;
   gap: 16px;
   white-space: nowrap;
-  animation: tickerMarquee 200s linear infinite;
+  animation: tickerMarquee 320s linear infinite;
   will-change: transform;
   padding: 0;
 }
