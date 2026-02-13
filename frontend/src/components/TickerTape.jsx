@@ -4,7 +4,7 @@ import { API_BASE_URL } from "../config";
 
 const FALLBACK_ITEMS = [
   { symbol: "NIFTY 50", price: 22500.0, change: 0.0, changePercent: 0.0 },
-  { symbol: "SENSEX", price: 74000.0, change: 0.0, changePercent: 0.0 },
+  { symbol: "NIFTY BANK", price: 48500.0, change: 0.0, changePercent: 0.0 },
   { symbol: "RELIANCE", price: 2500.0, change: 0.0, changePercent: 0.0 },
   { symbol: "TCS", price: 3850.0, change: 0.0, changePercent: 0.0 },
   { symbol: "INFY", price: 1650.0, change: 0.0, changePercent: 0.0 },
