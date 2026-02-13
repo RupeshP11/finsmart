@@ -40,12 +40,16 @@ SYMBOL_LABELS = {
     "^BSESN": "SENSEX",
 }
 
-# Simple in-memory cache to avoid rate limits (10s refresh for fresher live prices on production)
+# Cache with 60s duration to avoid Yahoo Finance rate limits
 _CACHE = {
     "timestamp": 0,
     "items": [],
 }
 _CACHE_LOCK = threading.Lock()
+
+# Track rate limit errors to implement backoff
+_RATE_LIMIT_COUNT = 0
+_LAST_RATE_LIMIT_TIME = 0
 
 # Initial fallback data with reasonable market values
 FALLBACK_ITEMS = [
@@ -114,17 +118,29 @@ def _display_symbol(symbol):
     return symbol.replace(".NS", "")
 
 
-def fetch_yfinance_quotes(symbols):
-    """Fetch quotes from yfinance (free, no API key needed) - Simplified LIVE prices."""
+def fetch_yfinance_quotes(symbols, skip_on_rate_limit=True):
+    """Fetch quotes from yfinance with rate limit protection."""
+    global _RATE_LIMIT_COUNT, _LAST_RATE_LIMIT_TIME
+    
+    # If we've hit rate limits recently, skip yfinance entirely
+    if skip_on_rate_limit and _RATE_LIMIT_COUNT > 3:
+        time_since_limit = time.time() - _LAST_RATE_LIMIT_TIME
+        if time_since_limit < 300:  # 5 minute backoff
+            print(f"[TICKER] Skipping yfinance due to recent rate limits (backoff: {300-time_since_limit:.0f}s)")
+            return []
+    
     items = []
     
-    for symbol in symbols:
+    # Fetch only indices from yfinance (they're more reliable)
+    # Equity stocks will be fetched from NSE API
+    index_symbols = [s for s in symbols if s.startswith("^")]
+    
+    for symbol in index_symbols:
         try:
             ticker = yf.Ticker(symbol)
             
-            # Get the most recent data using fast_info (more reliable than history)
+            # Try fast_info first (faster and more reliable)
             try:
-                # Try fast_info first (faster and more reliable)
                 fast_info = ticker.fast_info
                 current_price = fast_info.get('lastPrice') or fast_info.get('regularMarketPrice')
                 prev_close = fast_info.get('previousClose') or fast_info.get('regularMarketPreviousClose')
@@ -139,14 +155,22 @@ def fetch_yfinance_quotes(symbols):
                         "change": float(round(change, 2)),
                         "changePercent": float(round(change_percent, 2)),
                     })
+                    # Reset rate limit counter on success
+                    _RATE_LIMIT_COUNT = max(0, _RATE_LIMIT_COUNT - 1)
                     continue
-            except:
+            except Exception as e:
+                error_msg = str(e)
+                if "429" in error_msg or "Too Many Requests" in error_msg:
+                    _RATE_LIMIT_COUNT += 1
+                    _LAST_RATE_LIMIT_TIME = time.time()
+                    print(f"[TICKER] Rate limit hit! Count: {_RATE_LIMIT_COUNT}")
+                    break  # Stop trying yfinance
                 pass
             
-            # Fallback to info dict if fast_info fails
+            # Fallback to info dict
             try:
                 info = ticker.info
-                current = info.get("regularMarketPrice") or info.get("currentPrice") or info.get("lastPrice")
+                current = info.get("regularMarketPrice") or info.get("currentPrice")
                 prev = info.get("regularMarketPreviousClose") or info.get("previousClose")
                 
                 if current and prev and current > 0 and prev > 0:
@@ -160,31 +184,20 @@ def fetch_yfinance_quotes(symbols):
                         "changePercent": float(round(change_percent, 2)),
                     })
                     continue
-            except:
-                pass
-            
-            # Last resort: get 1 day history
-            try:
-                hist = ticker.history(period="1d")
-                if not hist.empty and len(hist) > 0:
-                    current_price = hist['Close'].iloc[-1]
-                    open_price = hist['Open'].iloc[0]
-                    
-                    if current_price > 0 and open_price > 0:
-                        change = current_price - open_price
-                        change_percent = (change / open_price * 100)
-                        
-                        items.append({
-                            "symbol": _display_symbol(symbol),
-                            "price": float(round(current_price, 2)),
-                            "change": float(round(change, 2)),
-                            "changePercent": float(round(change_percent, 2)),
-                        })
-            except:
+            except Exception as e:
+                if "429" in str(e) or "Too Many Requests" in str(e):
+                    _RATE_LIMIT_COUNT += 1
+                    _LAST_RATE_LIMIT_TIME = time.time()
+                    break
                 pass
                 
         except Exception as e:
-            print(f"[TICKER] Error fetching {symbol}: {str(e)}")
+            error_msg = str(e)
+            if "429" in error_msg or "Too Many Requests" in error_msg:
+                _RATE_LIMIT_COUNT += 1
+                _LAST_RATE_LIMIT_TIME = time.time()
+                print(f"[TICKER] Rate limit detected: {error_msg}")
+                break
             continue
     
     return items
@@ -192,7 +205,7 @@ def fetch_yfinance_quotes(symbols):
 
 @router.get("/ticker")
 def get_ticker():
-    """Get live stock quotes - refreshes every 10s for fresh data on production."""
+    """Get live stock quotes with 60s cache to avoid rate limits."""
     global FALLBACK_ITEMS
     
     try:
@@ -201,44 +214,47 @@ def get_ticker():
             now = time.time()
             cache_age = now - _CACHE["timestamp"]
             
-            # Cache valid for 10 seconds
-            if _CACHE["items"] and cache_age < 10:
+            # Cache valid for 60 seconds (prevents rate limiting)
+            if _CACHE["items"] and cache_age < 60:
                 print(f"[TICKER] Cache hit - {len(_CACHE['items'])} items (age: {cache_age:.1f}s)")
                 return {"items": _CACHE["items"]}
         
-        # Fetch fresh data
-        print(f"[TICKER] Fetching fresh data from yfinance...")
-        quotes = fetch_yfinance_quotes(DEFAULT_SYMBOLS)
+        print(f"[TICKER] Cache expired, fetching fresh data...")
         
-        # If we got good data, cache and return it
-        if quotes and len(quotes) >= 8:  # At least 8 stocks
-            print(f"[TICKER] Success! Fetched {len(quotes)} live quotes")
-            with _CACHE_LOCK:
-                _CACHE["items"] = quotes
-                _CACHE["timestamp"] = time.time()
-                FALLBACK_ITEMS = quotes.copy()  # Update fallback
-            return {"items": quotes}
+        # Prioritize NSE API for Indian stocks (more reliable, no rate limits)
+        print(f"[TICKER] Fetching from NSE India API...")
+        nse_quotes = fetch_nse_quotes(EQUITY_SYMBOLS)
         
-        # Try NSE API as backup
-        print(f"[TICKER] yfinance returned only {len(quotes)} items, trying NSE...")
-        nse_quotes = fetch_nse_quotes(DEFAULT_SYMBOLS)
+        # Get indices from yfinance (only 2 symbols, less likely to hit rate limit)
+        print(f"[TICKER] Fetching indices from yfinance...")
+        yf_quotes = fetch_yfinance_quotes(INDEX_SYMBOLS)
         
-        if nse_quotes and len(nse_quotes) >= 5:
-            print(f"[TICKER] NSE Success! Fetched {len(nse_quotes)} quotes")
-            # Combine yfinance and NSE results
-            combined = quotes + nse_quotes
-            # Remove duplicates by symbol
-            seen = set()
-            unique_quotes = []
-            for q in combined:
-                if q["symbol"] not in seen:
-                    seen.add(q["symbol"])
-                    unique_quotes.append(q)
-            
+        # Combine results
+        combined = yf_quotes + nse_quotes
+        
+        # Remove duplicates by symbol
+        seen = set()
+        unique_quotes = []
+        for q in combined:
+            if q["symbol"] not in seen:
+                seen.add(q["symbol"])
+                unique_quotes.append(q)
+        
+        # If we got reasonable data, cache and return it
+        if unique_quotes and len(unique_quotes) >= 8:
+            print(f"[TICKER] Success! Fetched {len(unique_quotes)} quotes (NSE: {len(nse_quotes)}, YF: {len(yf_quotes)})")
             with _CACHE_LOCK:
                 _CACHE["items"] = unique_quotes
                 _CACHE["timestamp"] = time.time()
-                FALLBACK_ITEMS = unique_quotes.copy()
+                FALLBACK_ITEMS = unique_quotes.copy()  # Update fallback
+            return {"items": unique_quotes}
+        
+        # If we got some data, use it even if not all stocks
+        if unique_quotes and len(unique_quotes) >= 3:
+            print(f"[TICKER] Partial success - {len(unique_quotes)} quotes")
+            with _CACHE_LOCK:
+                _CACHE["items"] = unique_quotes
+                _CACHE["timestamp"] = time.time()
             return {"items": unique_quotes}
         
         # Return cached data if available

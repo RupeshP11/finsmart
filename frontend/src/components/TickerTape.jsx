@@ -66,9 +66,9 @@ function TickerTape() {
     // Fetch immediately
     fetchTicker();
 
-    // Refresh every 10 seconds to match backend cache (10s)
-    // This ensures fresh live prices on both localhost and production
-    const interval = setInterval(fetchTicker, 10000);
+    // Refresh every 60 seconds to match backend cache and avoid rate limits
+    // Backend caches for 60s to prevent Yahoo Finance API rate limiting
+    const interval = setInterval(fetchTicker, 60000);
 
     return () => {
       isMounted = false;
