@@ -638,30 +638,72 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .autosavings-header {
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
+  }
+
   .autosavings-header h1 {
-    font-size: var(--fs-subtitle);
+    font-size: 18px;
+    margin-bottom: 4px;
   }
 
   .advice-content {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+    gap: var(--space-md);
+  }
+
+  .advice-card {
+    border-radius: var(--radius-md);
+    overflow: hidden;
   }
 
   .advice-card .amount {
     border-right: none;
     border-bottom: 1px solid var(--color-border-subtle);
-    padding: var(--space-md);
+    padding: 12px;
+    font-size: 20px;
   }
 
   .advice-card .details {
-    padding: var(--space-md);
+    padding: 12px;
+  }
+
+  /* Fix inline styled grids in advice card */
+  .advice-card [style*="gridTemplateColumns: \"1fr 1.2fr\""] {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .advice-card [style*="display: grid"] {
+    gap: 12px !important;
+  }
+
+  /* Pie chart and info grid stacking */
+  .advice-card > div[style*="display: grid"] {
+    grid-template-columns: 1fr !important;
   }
 
   .stat-grid {
     grid-template-columns: 1fr !important;
+    gap: var(--space-md);
+  }
+
+  .stat-card {
+    padding: 12px;
+    overflow: hidden;
+    word-break: break-word;
   }
 
   .recommendations-list {
     grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .recommendation-card {
+    padding: 12px;
+    gap: 12px;
+    overflow: hidden;
   }
 
   .goal-header {

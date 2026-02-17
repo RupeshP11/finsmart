@@ -5,8 +5,8 @@
 .page-container {
   width: 100%;
   max-width: 100%;
-  margin: 0 auto;
-  padding: var(--space-2xl) var(--space-xl);
+  margin: 0;
+  padding: var(--space-2xl) var(--padding-page);
 }
 
 .page-content {
@@ -312,15 +312,18 @@
   .page-container {
     padding: var(--space-md);
     max-width: 100%;
+    overflow: hidden;
   }
 
   .page-content {
     gap: var(--space-lg);
+    overflow: hidden;
   }
 
   .card {
     padding: var(--space-md);
     border-radius: var(--radius-md);
+    overflow: hidden;
   }
 
   .card:hover {
@@ -373,6 +376,14 @@
   .alert-item {
     padding: var(--space-sm) var(--space-md);
     margin-bottom: var(--space-xs);
+  }
+
+  /* Ensure all containers respect mobile width */
+  .card > div[style*="display: grid"],
+  .card > div[style*="display: flex"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
   }
 
   .form-input,

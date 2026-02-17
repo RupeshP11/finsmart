@@ -11,6 +11,17 @@
   /* Optimize for tablet */
   body {
     font-size: 14px;
+    padding-top: calc(var(--ticker-height) + var(--navbar-height) + var(--month-selector-height) + 44px);
+  }
+
+  body.auth-layout {
+    padding-top: 0;
+  }
+
+  :root {
+    --ticker-height: 28px;
+    --navbar-height: 54px;
+    --month-selector-height: 36px;
   }
 
   h1 {
@@ -52,6 +63,20 @@
 }
 
 @media (max-width: 480px) {
+  body {
+    padding-top: calc(var(--ticker-height) + var(--navbar-height) + var(--month-selector-height) + 44px);
+  }
+
+  body.auth-layout {
+    padding-top: 0;
+  }
+
+  :root {
+    --ticker-height: 26px;
+    --navbar-height: 52px;
+    --month-selector-height: 36px;
+  }
+
   .page-container {
     padding: var(--space-sm);
   }
@@ -102,12 +127,27 @@
 
 /* Landscape Mobile */
 @media (max-height: 500px) and (orientation: landscape) {
+  body:not(.auth-layout) {
+    padding-top: calc(var(--ticker-height) + var(--navbar-height) + var(--month-selector-height) + 44px);
+  }
+
   .page-container {
     padding: var(--space-sm);
   }
 
   .page-content {
     gap: var(--space-md);
+  }
+}
+
+/* Landscape Mobile - Wider screens */
+@media (max-width: 768px) and (orientation: landscape) {
+  body:not(.auth-layout) {
+    padding-top: calc(var(--ticker-height) + var(--navbar-height) + var(--month-selector-height) + 44px);
+  }
+
+  .page-container {
+    padding: var(--space-md);
   }
 }
 

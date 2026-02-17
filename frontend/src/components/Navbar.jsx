@@ -95,6 +95,18 @@ function Navbar({ onLogout }) {
       <div className="navbar__left">
         <button
           type="button"
+          className="navbar__hamburger"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={mobileMenuOpen}
+        >
+          <span className={`navbar__hamburger-line ${mobileMenuOpen ? 'navbar__hamburger-line--open-1' : ''}`}></span>
+          <span className={`navbar__hamburger-line ${mobileMenuOpen ? 'navbar__hamburger-line--open-2' : ''}`}></span>
+          <span className={`navbar__hamburger-line ${mobileMenuOpen ? 'navbar__hamburger-line--open-3' : ''}`}></span>
+        </button>
+
+        <button
+          type="button"
           className="navbar__logo"
           onClick={() => {
             navigate("/dashboard");
@@ -105,60 +117,27 @@ function Navbar({ onLogout }) {
         >
           Fin<span className="navbar__logo-accent">Smart</span>
         </button>
-
-        <nav 
-          className={`navbar__links ${mobileMenuOpen ? "navbar__links--open" : ""}`} 
-          aria-label="Primary"
-        >
-          {navItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={() =>
-                isActive(item.path)
-                  ? "navbar__link navbar__link--active"
-                  : "navbar__link"
-              }
-              onClick={closeMobileMenu}
-            >
-              {item.label}
-            </NavLink>
-          ))}
-
-          {/* Profile section in mobile menu */}
-          <div className="navbar__mobile-profile">
-            <div className="navbar__mobile-profile-info">
-              <div className="navbar__avatar" style={{ width: '32px', height: '32px', fontSize: '14px' }}>
-                {getInitials()}
-              </div>
-              <div className="navbar__mobile-profile-text">
-                <p className="navbar__mobile-profile-name">{userData.name}</p>
-                <p className="navbar__mobile-profile-email">{userData.email}</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              className="navbar__mobile-profile-btn"
-              onClick={() => {
-                closeMobileMenu();
-                setSidebarOpen(true);
-              }}
-            >
-              View Profile
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                closeMobileMenu();
-                onLogout();
-              }}
-              className="navbar__mobile-logout-btn"
-            >
-              Logout
-            </button>
-          </div>
-        </nav>
       </div>
+
+      <nav 
+        className={`navbar__links ${mobileMenuOpen ? "navbar__links--open" : ""}`} 
+        aria-label="Primary"
+      >
+        {navItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={() =>
+              isActive(item.path)
+                ? "navbar__link navbar__link--active"
+                : "navbar__link"
+            }
+            onClick={closeMobileMenu}
+          >
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
 
       <div className="navbar__right">
         <button
@@ -169,18 +148,6 @@ function Navbar({ onLogout }) {
         >
           <span className="navbar__avatar">{getInitials()}</span>
           <span className="navbar__profile-text">Profile</span>
-        </button>
-
-        <button
-          type="button"
-          className="navbar__hamburger"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle navigation menu"
-          aria-expanded={mobileMenuOpen}
-        >
-          <span className={`navbar__hamburger-line ${mobileMenuOpen ? 'navbar__hamburger-line--open-1' : ''}`}></span>
-          <span className={`navbar__hamburger-line ${mobileMenuOpen ? 'navbar__hamburger-line--open-2' : ''}`}></span>
-          <span className={`navbar__hamburger-line ${mobileMenuOpen ? 'navbar__hamburger-line--open-3' : ''}`}></span>
         </button>
       </div>
 

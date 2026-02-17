@@ -24,17 +24,18 @@ app = FastAPI(title="FinSmart API")
 # For production: set ALLOWED_ORIGINS=https://finsmart-seven.vercel.app,http://localhost:5173
 allowed_origins_str = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173,https://finsmart-seven.vercel.app"
+    "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174,https://finsmart-seven.vercel.app"
 )
 allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",")]
 
 # Add CORS middleware FIRST (before all routes)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=["*"],  # Allow all origins in development
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Create tables on first request instead of startup (handles DB connection issues gracefully)
@@ -45,6 +46,9 @@ def startup_event():
         # Seed default categories on startup (only if empty)
         from app.seed_categories import seed_categories
         seed_categories()
+        # Warm up ML models to avoid first-request delay
+        from app.ml.predictor import load_models
+        load_models()
     except Exception as e:
         print(f"Warning: Could not initialize database on startup: {e}")
         print("Tables will be created on first request...")

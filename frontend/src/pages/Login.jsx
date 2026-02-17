@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/login.css";
 import { API_BASE_URL } from "../config";
@@ -10,12 +10,20 @@ function Login({ onLogin }) {
   const [messageType, setMessageType] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    document.body.classList.add("auth-layout");
+    return () => document.body.classList.remove("auth-layout");
+  }, []);
+
   async function handleLogin(e) {
     e.preventDefault();
     setMessage("");
     setMessageType("");
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
@@ -25,10 +33,12 @@ function Login({ onLogin }) {
           email: email,
           password: password,
         }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       const data = await response.json();
-      console.log("Login response:", data);
 
       if (response.ok) {
         localStorage.setItem("token", data.access_token);
@@ -39,12 +49,16 @@ function Login({ onLogin }) {
         // 🔀 redirect immediately
         navigate("/dashboard");
       } else {
-        setMessage(data.detail || "Login failed. Please try again.");
+        setMessage(data.detail || "Invalid credentials. Please try again.");
         setMessageType("error");
       }
     } catch (error) {
       console.error("Login error:", error);
-      setMessage("Something went wrong. Please try again.");
+      if (error.name === 'AbortError') {
+        setMessage("Request timed out. Please try again.");
+      } else {
+        setMessage("Unable to connect. Please try again.");
+      }
       setMessageType("error");
     }
   }

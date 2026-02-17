@@ -160,15 +160,115 @@
 }
 
 @media (max-width: 768px) {
+  .analytics-header {
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
+  }
+
   .analytics-header h1 {
-    font-size: 24px;
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .analytics-header .subtitle {
+    font-size: 12px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .comparison-summary {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .summary-item {
+    padding: 12px;
+    border-radius: var(--radius-md);
+    gap: 8px;
+  }
+
+  .summary-item .label {
+    font-size: 11px;
   }
 
   .summary-item .amount {
     font-size: 16px;
   }
 
+  .card-header {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+  }
+
+  .card-header h3 {
+    font-size: 18px;
+  }
+
+  .card-hint {
+    font-size: 12px;
+  }
+
+  .subscriptions-list {
+    gap: 8px;
+  }
+
+  .subscription-item {
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+  }
+
   .heatmap-container {
     overflow-x: auto;
+    border-radius: var(--radius-md);
+  }
+
+  .category-comparison {
+    gap: 8px;
+    flex-direction: column;
+  }
+
+  .comparison-row {
+    padding: 8px;
+    gap: 8px;
+    border-radius: 6px;
+    flex-direction: column;
+  }
+
+  /* Budget Performance section - 2 columns for better data visibility */
+  .budget-summary {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Top summary boxes and category grids - 2 columns */
+  .budget-summary > div {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    width: 100% !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Individual box sizing */
+  .budget-summary div > div {
+    padding: 12px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Recurring transactions - 2 columns */
+  .analytics-card > div[style*="display: grid"][style*="gridTemplateColumns"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    width: 100% !important;
   }
 }

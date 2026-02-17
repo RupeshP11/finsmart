@@ -4,9 +4,12 @@
   background: var(--color-bg-surface);
   border-bottom: 1px solid var(--color-border);
   padding: var(--space-md) var(--space-lg);
-  position: sticky;
-  top: 56px;
-  z-index: 99;
+  position: fixed;
+  top: calc(var(--ticker-height) + var(--navbar-height));
+  left: 0;
+  right: 0;
+  z-index: 115;
+  min-height: var(--month-selector-height);
 }
 
 .month-selector-container {
@@ -16,7 +19,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: 0 var(--space-lg);
+  padding: 0 var(--padding-page);
 }
 
 .month-label {
@@ -52,17 +55,47 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .month-selector-wrapper {
-    padding: var(--space-sm) var(--space-md);
-    top: 60px;
+    padding: 5px var(--space-md);
+    top: calc(var(--ticker-height) + var(--navbar-height) + 28px);
+    min-height: 36px;
   }
 
   .month-selector-container {
     flex-wrap: wrap;
-    padding: 0 var(--space-md);
+    padding: 0 var(--padding-page);
+    gap: 8px;
+  }
+
+  .month-label {
+    font-size: 12px;
   }
 
   .month-input {
-    padding: var(--space-xs) var(--space-sm);
-    font-size: 14px;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+}
+
+/* Landscape Mobile - Maintain same styling */
+@media (max-width: 768px) and (orientation: landscape) {
+  .month-selector-wrapper {
+    padding: 5px var(--space-md);
+    top: calc(var(--ticker-height) + var(--navbar-height) + 28px);
+    min-height: 36px;
+  }
+
+  .month-selector-container {
+    padding: 0 var(--padding-page);
+    gap: 8px;
+  }
+
+  .month-label {
+    font-size: 12px;
+  }
+
+  .month-input {
+    padding: 5px 10px;
+    font-size: 12px;
   }
 }

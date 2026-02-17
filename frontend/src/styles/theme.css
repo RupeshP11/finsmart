@@ -79,6 +79,10 @@
   --max-width-content: 100%;
   --padding-page: 24px;
   --padding-page-lg: 32px;
+  --ticker-height: 32px;
+  --navbar-height: 56px;
+  --month-selector-height: 52px;
+  --app-header-offset: calc(var(--ticker-height) + var(--navbar-height) + var(--month-selector-height));
 
   /* ===== BORDERS & RADIUS (PROFESSIONAL, SUBTLE) ===== */
 

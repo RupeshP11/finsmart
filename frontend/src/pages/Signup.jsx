@@ -15,6 +15,9 @@ function Signup() {
     setMessageType("");
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
       const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: "POST",
         headers: {
@@ -24,10 +27,12 @@ function Signup() {
           email: email,
           password: password,
         }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       const data = await response.json();
-      console.log("Signup response:", data);
 
       if (response.ok) {
         setMessage("Signup successful. Now log in.");
@@ -39,7 +44,11 @@ function Signup() {
 
     } catch (error) {
       console.error("Signup error:", error);
-      setMessage("Something went wrong. Please try again.");
+      if (error.name === 'AbortError') {
+        setMessage("Request timed out. Please try again.");
+      } else {
+        setMessage("Unable to connect. Please try again.");
+      }
       setMessageType("error");
     }
   }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Notification from "../components/Notification";
 import { API_BASE_URL } from "../config";
 import "../styles/transactions.css";
@@ -13,6 +13,7 @@ function Transactions({ selectedMonth }) {
   const [loadingSuggestion, setLoadingSuggestion] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const suggestAbortRef = useRef(null);
   
   // Notification state
   const [notification, setNotification] = useState({
@@ -73,10 +74,16 @@ function Transactions({ selectedMonth }) {
 
   // Auto-suggest category
   async function suggestCategory(text) {
-    if (!text || text.trim().length < 3) {
-      setSuggestedCategory(null);
+    if (!token || categories.length === 0) {
       return;
     }
+
+    if (suggestAbortRef.current) {
+      suggestAbortRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    suggestAbortRef.current = controller;
 
     setLoadingSuggestion(true);
 
@@ -88,6 +95,7 @@ function Transactions({ selectedMonth }) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ text }),
+        signal: controller.signal,
       });
 
       const data = await res.json();
@@ -99,12 +107,33 @@ function Transactions({ selectedMonth }) {
       );
 
       setSuggestedCategory(matched || null);
-    } catch {
-      setSuggestedCategory(null);
+    } catch (error) {
+      if (error?.name !== "AbortError") {
+        setSuggestedCategory(null);
+      }
     } finally {
-      setLoadingSuggestion(false);
+      if (suggestAbortRef.current === controller) {
+        setLoadingSuggestion(false);
+      }
     }
   }
+
+  useEffect(() => {
+    if (!description || description.trim().length < 3) {
+      if (suggestAbortRef.current) {
+        suggestAbortRef.current.abort();
+      }
+      setSuggestedCategory(null);
+      setLoadingSuggestion(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      suggestCategory(description);
+    }, 350);
+
+    return () => clearTimeout(timeoutId);
+  }, [description, type, categories, token]);
 
   // Add transaction
   async function addTransaction(e) {
@@ -119,6 +148,9 @@ function Transactions({ selectedMonth }) {
 
     try {
       // 1. Add transaction
+      // Use today's date instead of hardcoded 1st
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+      
       const addRes = await fetch(`${API_BASE_URL}/transactions`, {
         method: "POST",
         headers: {
@@ -129,7 +161,7 @@ function Transactions({ selectedMonth }) {
           amount: Number(amount),
           description,
           category_id: Number(categoryId),
-          date: `${selectedMonth}-01`,
+          date: today,
         }),
       });
 
@@ -168,8 +200,6 @@ function Transactions({ selectedMonth }) {
 
   // delete transaction and re-check alerts
   async function deleteTransaction(id, categoryId) {
-    if (!window.confirm("Delete this transaction?")) return;
-
     try {
       // Delete transaction
       await fetch(`${API_BASE_URL}/transactions/${id}`, {
@@ -286,7 +316,6 @@ function Transactions({ selectedMonth }) {
                   value={description}
                   onChange={(e) => {
                     setDescription(e.target.value);
-                    suggestCategory(e.target.value);
                   }}
                   className="form-input"
                 />

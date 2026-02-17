@@ -20,6 +20,11 @@ body {
   line-height: var(--lh-normal);
   font-size: var(--fs-body);
   font-weight: var(--fw-regular);
+  padding-top: var(--app-header-offset);
+}
+
+body.auth-layout {
+  padding-top: 0;
 }
 
 /* ===== TYPOGRAPHY ===== */

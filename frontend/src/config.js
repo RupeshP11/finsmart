@@ -1,17 +1,17 @@
-// API configuration
-// In production (Vercel), VITE_API_BASE_URL should be set to https://finsmart-backend-bp85.onrender.com
-// In local development, it defaults to localhost:8000
-// Usage: Vercel Environment Variables should have: VITE_API_BASE_URL=https://finsmart-backend-bp85.onrender.com
-export const API_BASE_URL = 
-  import.meta.env.VITE_API_BASE_URL || 
-  import.meta.env.MODE === 'production' 
-    ? 'https://finsmart-backend-bp85.onrender.com'
-    : 'http://127.0.0.1:8000';
+// API configuration - Robust with automatic fallback
+export const API_BASE_URL = (() => {
+  // Priority 1: Environment variable (for production)
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  
+  // Priority 2: Production check
+  if (import.meta.env.MODE === 'production') {
+    return 'https://finsmart-backend-bp85.onrender.com';
+  }
+  
+  // Priority 3: Development - try localhost:8000 (default backend port)
+  return 'http://localhost:8000';
+})();
 
-// Fallback for safety
-if (!API_BASE_URL) {
-  console.warn(
-    'API_BASE_URL is not set. Using http://127.0.0.1:8000 as fallback. ' +
-    'Set VITE_API_BASE_URL environment variable for production.'
-  );
-}
+console.log(`[FinSmart] API Base URL: ${API_BASE_URL}`);
